@@ -1,0 +1,15 @@
+
+TODO List:
+
+- The user can give a database name, and the script must
+ save all the data into this database.
+
+- With a option, the script generates a sql text file, and
+ don't save the data directly to the database.
+
+- Use other database, not only MySQL.
+
+- Give the user, the option of what he wants to create. ¿What
+ tables? ¿monthly or historically?
+
+- Analyze and store the mail and ftp results, not only the web.
