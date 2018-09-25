@@ -29,13 +29,13 @@ copyright 2005-02-15 by Miguel Angel Liebana (th3 th1nk3r) <th1nk3r@users.source
 
 Basic Usage
 ==================
-    0 :dependencies:
+    dependencies:
       (1)perl;
       (2)mysql
       (3)DBI
       (4)Data-ShowTable
       (5)DBD-mysql
-      at this version:DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
+      at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
      
      
     1st: Copy aw2sql.pl script to the awstats directory
