@@ -23,6 +23,7 @@
 #
 
 require 5.005;
+use warnings;
 use DBI;
 use Getopt::Long;
 use Time::Local;

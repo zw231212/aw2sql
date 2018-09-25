@@ -1,9 +1,10 @@
-======
-Aw2Sql
-======
+====== <br/>
+Aw2Sql  <br/>
+======  <br/>
 ```
 项目起源：项目最初是想将awstats统计的结果（是txt文档）弄成一个api来服务，但是由于不懂的perl。
-故而找了这方面的一些资料，最终找到这个项目。然后学习了一下perl，进行了一些初步的改动。
+故而找了这方面的一些资料，最终找到这个项目——能把结果数据解析到mysql数据库中去。但是运行的时候出现了一些问题；
+然后学习了一下perl，进行了一些初步的改动，后期抽空再改动改动！
 改动：
 （1）自动创建数据库（config+"_log"）的形式；
 （2）修改了一些数据库表字段的长度限制，原来插入的时候的一直报错；
@@ -14,8 +15,8 @@ Aw2Sql
 
 ```
 
-http://sourceforge.net/projects/aw2sql/
-http://aw2sql.sourceforge.net/
+source code from :[sourceforge](http://sourceforge.net/projects/aw2sql/)  <br/>
+[homepage](http://aw2sql.sourceforge.net/)
 
 Aw2Sql is a Perl CLI script which analyze the results of Awstats and store them
 into a MySQL database. After this you can query this results from your own site

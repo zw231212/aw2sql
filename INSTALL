@@ -7,7 +7,7 @@ Basic Installation
           $DataDir   => Directory where you store the awstats temp files
           $dbuser    => You must select a username
           $dbpass    => You must select a password
-          $dbhost    => ¿Where is MySQL server?
+          $dbhost    => Where is MySQL server?
 
           Ex:
             $DataDir = '/www/awstats'
@@ -20,7 +20,7 @@ Basic Installation
     4th: # chmod 711 aw2sql.pl
 
     5th: Create the database into MySQL. The default database is "mysite"_log.
-      ¿What this means? If your site is www.mysite.com, and you have an awstats'
+      ï¿½What this means? If your site is www.mysite.com, and you have an awstats'
       config file named: "awstats.mysite.conf", you will generate a temp file
       with the name: "awstats022005.mysite.txt".
       The numbers are month and year (022005 == february 2005).

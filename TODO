@@ -1,6 +1,8 @@
 
 TODO List:
 
+- 解析指定config的全部日志文件，并缓存，下次解析解析之后的而不解析以前的；
+
 - The user can give a database name, and the script must
  save all the data into this database.
 
@@ -9,7 +11,7 @@ TODO List:
 
 - Use other database, not only MySQL.
 
-- Give the user, the option of what he wants to create. �What
- tables? �monthly or historically?
+- Give the user, the option of what he wants to create. �What
+ tables? monthly or historically?
 
 - Analyze and store the mail and ftp results, not only the web.
