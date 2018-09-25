@@ -15,8 +15,7 @@ Aw2Sql  <br/>
 
 ```
 
-source code from :[sourceforge](http://sourceforge.net/projects/aw2sql/)  <br/>
-[homepage](http://aw2sql.sourceforge.net/)
+source code from :[sourceforge](http://sourceforge.net/projects/aw2sql/) ;[homepage](http://aw2sql.sourceforge.net/)
 
 Aw2Sql is a Perl CLI script which analyze the results of Awstats and store them
 into a MySQL database. After this you can query this results from your own site
@@ -27,6 +26,74 @@ existing website.
 
 Aw2Sql is covered under the GNU General Public License (GPL)
 copyright 2005-02-15 by Miguel Angel Liebana (th3 th1nk3r) <th1nk3r@users.sourceforge.net>
+
+Basic Usage
+==================
+    0 :dependencies:
+      (1)perl;
+      (2)mysql
+      (3)DBI
+      (4)Data-ShowTable
+      (5)DBD-mysql
+      at this version:DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
+     
+     
+    1st: Copy aw2sql.pl script to the awstats directory
+
+    2nd: Edit aw2sql.pl and change the values of:
+          $DataDir   => Directory where you store the awstats temp files
+          $dbuser    => You must select a username
+          $dbpass    => You must select a password
+          $dbhost    => Where is MySQL server?
+
+          Ex:
+            $DataDir = '/www/awstats'
+            $dbuser  = 'myuser'
+            $dbpass  = 'secret'
+            $dbhost  = 'localhost'
+
+    3rd: # chown root:root aw2sql.pl
+
+    4th: # chmod 711 aw2sql.pl
+
+    5th: Create the database into MySQL. The default database is "mysite"_log.
+      What this means? If your site is www.mysite.com, and you have an awstats'
+      config file named: "awstats.mysite.conf", you will generate a temp file
+      with the name: "awstats022005.mysite.txt".
+      The numbers are month and year (022005 == february 2005).
+      You must create this database before running the script. In this version,
+      the script doesn't create the database.
+      (Note: improved，create database is no longer needed!)
+    6th: Run the script
+        $ ./aw2sql.pl -config=mysite ## this would find the current(now) month and 
+        current year's file!
+
+         You can run the script and generate a specific month/year with
+        $ ./aw2sql.pl -config=mysite -month=12 -year=2004
+
+    Note: You only can use awstats temp files with text format, don't use
+     the xml format!!
+     
+     
+Changelog
+-----------
+2018-09-24 zzq <191550636@qq.com>
+
+        * 自动创建数据库；
+        * 数据库表部分字段全部加长（也许有不合适，但是为了避免异常还是加上）；
+
+2005-02-15 th3 th1nk3r <th1nk3r@users.sourceforge.net>
+
+        * aw2sql.pl: Release the version beta
+
+2005-02-12 th3 th1nk3r <th1nk3r@users.sourceforge.net>
+
+        * aw2sql.pl: Test the version alpha
+
+2005-02-11 th3 th1nk3r <th1nk3r@users.sourceforge.net>
+
+        * aw2sql.pl: Added options to select month and year
+        * aw2sql.pl: The script now requires a special database
 
 
 History
@@ -59,3 +126,9 @@ Use the script as a guide to create your own script, not as a full program.
 Perhaps in futur versions we have a config file and can configure what do you
 want to output to the SQL database and how.
 
+Thanks
+-------
+First, I want to thank my girlfriend, [Allyenna](http://i-dream.allyenna.net),
+because her inconditional support and her encouragement in the dificult
+moments :*
+And of course, she is the artist who have created the website for this project ;)
