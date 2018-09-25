@@ -2,10 +2,10 @@
 
 use DBI;
 my $db_name = "test12";
-my $db_host = "10.2.16.3";
+my $db_host = "XXXXXXX";
 my $db_port = '3306';
 my $username = "root";
-my $pass = "Tiger!2018";
+my $pass = "XXXX";
 
 my $dsn = "dbi:mysql:database=${db_name};hostname=${db_host};port=${db_port}";
 
