@@ -74,7 +74,8 @@ Basic Usage
     Note: You only can use awstats temp files with text format, don't use
      the xml format!!
      
-###数据表与网页对照说明
+数据表与网页对照说明
+------------------------
 ```
 基本字段说明：
   pages ：网页数；
