@@ -74,6 +74,31 @@ Basic Usage
     Note: You only can use awstats temp files with text format, don't use
      the xml format!!
      
+###数据表与网页对照说明
+```
+基本字段说明：
+  pages ：网页数；
+  hits ：文件数；
+  bandwidth ：字节数；
+（1）摘要数据、按月历史统计数据和主机（相关的数据统计数据）对应表：general ；
+（2）按日期统计数据对应表：daily
+（3）按星期来统计数据对应表：
+（4）每小时浏览次数：hours
+（5）参观者的网域或国家：domain
+（6）主机和最近参观日期、无法反解译的IP地址的数据对应表：visitors
+（7）搜索引擎网站的机器人对应表：robot；
+（8）每次参观所花时间：session ；
+（9）文件类别：filetypes
+（10）下载：download，暂缺
+（11）url网址，也就是浏览的网页，还有入站处（entry不能为0），出站处（exit不为0）的数据对应表：pages
+（12）操作系统、无法得知的操作系统数据对于表：os与unkos
+（13）浏览器与无法得知的浏览器对应表数据：browser与unkbrowser
+（14）链接网站的方法：origin
+（15）用以搜索的短语和用以搜索的关键词：searchwords 和searchkeywords
+（16）HTTP错误码：errors对应总表，error404对应各自错误的页面
+
+```
+
      
 Changelog
 -----------

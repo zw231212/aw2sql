@@ -1,0 +1,2 @@
+# 存储bash脚本扫描出来的目标目录文件夹下的全部文件的config
+# config lastUpdateTime fnum version ，分别记录config名称，lastUpdateTime最后更新时间，fnum表示文件数量，version更新的次数version

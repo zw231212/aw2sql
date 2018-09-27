@@ -1,5 +1,14 @@
 
 TODO List:
+- 缺少download表 ,缺少error403表，缺少error400表；
+
+- 主动获取指定目录下的全部配置文件，然后获取全部的配置的config--编写脚本来实现；
+
+- hours表每次每月都会覆盖，要根据年月来作为id生成——增加新列；
+
+  domain，session，filetypes，robot .pages，origin,unkos与unkbrowser表；
+
+  errors,error404
 
 - 解析指定config的全部日志文件，并缓存，下次解析解析之后的而不解析以前的；
 
