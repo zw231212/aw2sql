@@ -25,7 +25,7 @@ website. The default Awstats results are ugly, and difficult to integrate into a
 existing website.
 
 Aw2Sql is covered under the GNU General Public License (GPL)
-copyright 2005-02-15 by Miguel Angel Liebana (th3 th1nk3r) <th1nk3r@users.sourceforge.net>
+copyright 2005-02-15 by Miguel Angel Liebana (th3 th1nk3r) 
 
 Basic Usage
 ==================
