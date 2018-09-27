@@ -38,7 +38,7 @@ Basic Usage
       at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
      
      
-    1st: Copy aw2sql.pl script to the awstats directory
+    1st: Copy aw2sql.pl script to the awstats directory （not necessary）
 
     2nd: Edit aw2sql.pl and change the values of:
           $DataDir   => Directory where you store the awstats temp files
