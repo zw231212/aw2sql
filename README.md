@@ -1,6 +1,7 @@
 ====== <br/>
 Aw2Sql  <br/>
 ======  <br/>
+
 项目起源：项目最初是想将awstats统计的结果（是txt文档）弄成一个api来服务，但是由于不懂的perl。
 故而找了这方面的一些资料，最终找到这个项目——能把结果数据解析到mysql数据库中去。但是运行的时候出现了一些问题；
 然后学习了一下perl，进行了一些初步的改动，后期抽空再改动改动！改动如下：
@@ -24,10 +25,10 @@ unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当�
 
 （6）对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
 
+
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
 
-```
 
 source code from :[sourceforge](http://sourceforge.net/projects/aw2sql/) ;[homepage](http://aw2sql.sourceforge.net/)
 
