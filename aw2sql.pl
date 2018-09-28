@@ -283,7 +283,7 @@ sub Create_Table
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
            "`bwwithoutcompress` BIGINT UNSIGNED NOT NULL , ".
            "`bwaftercompress` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `type` ) );";
+           "PRIMARY KEY ( `year_month`, `type` ) );";
   }
   elsif($_[0] eq "screen")
   {
@@ -358,6 +358,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `pages` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
            "`url` VARCHAR(255) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
@@ -1201,7 +1202,7 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("robot")) { Create_Table("robot"); }
 my $max = $datanumelem[Search_Sec("ROBOT")];
-$rows = $dbh->do("TRUNCATE TABLE `robot`"); # Empty the table
+$rows = $dbh->do("DELETE FROM `robot` WHERE `year_month` = '".$year_month."';"); # Empty the table
 for (my $i=0; $i<$max; $i++)
 {
   Read_Robot($i);
@@ -1275,7 +1276,7 @@ for (my $i=0; $i<$max; $i++)
 # Pages readed this month
 if(! Search_Table("pages")) { Create_Table("pages"); }
 my $max = $datanumelem[Search_Sec("SIDER")];
-$rows = $dbh->do("TRUNCATE TABLE `pages`");
+$rows = $dbh->do("DELETE FROM `pages` WHERE `year_month` = '".$year_month."'");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Pages($i);
@@ -1296,7 +1297,7 @@ for (my $i=0; $i<$max; $i++)
   $exitNum = $exitNum?$exitNum:0;
 
   $sql = "INSERT INTO `pages` SET `url`='".$pages{'url'}."', `pages`='$pagesNum', ".
-         "`bandwidth`='$bandWidthNum', `entry`='$entryNum', ".
+         "`bandwidth`='$bandWidthNum', `entry`='$entryNum', `year_month` = '".$year_month."'".
          "`exit`='$exitNum';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'pages' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
