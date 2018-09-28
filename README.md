@@ -13,7 +13,7 @@ Aw2Sql  <br/>
 
 （4）hours表每次每月都会覆盖，修改为：根据年月+hour来作为id生成,表增加新列year_month；
 
-（5）domain表每次每月都会覆盖，修改为：根据年月+code来作为id生成,,表增加新列year_month；
+（5）domain表每次每月都会覆盖，修改为：根据年月+code来作为id生成,表增加新列year_month；
 session表是根据year_month+range来作为key；pages和robot只是增加一列year_month，
 而且修改初始的清空表的操作，只是删除当前year_month相同的数据列;origin表增加year_month,
 year_month+from来作为key，同时修改一开始清空表格为删除数据的操作；
@@ -120,7 +120,8 @@ Changelog
 2018-09-28 zzq <191550636@qq.com>
 
         * 修改表结构，在一些清空表格的操作上，修改为删除当前year和month相同的数据，同时对于大部分的表增加一列year_month，同时修改一些表的key；
-
+        * 对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
+        
 2018-09-24 zzq <191550636@qq.com>
 
         * 自动创建数据库；
