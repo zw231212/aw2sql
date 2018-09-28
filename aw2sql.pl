@@ -228,7 +228,7 @@ sub Create_Table
           "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`range` VARCHAR(64) NOT NULL , ".
            "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `range` ) );";
+           "PRIMARY KEY ( `year_month`, `range` ) );";
   }
   elsif($_[0] eq "domain")
   {
@@ -277,6 +277,7 @@ sub Create_Table
   elsif($_[0] eq "filetypes")
   {
     $s = "CREATE TABLE `filetypes` ( ".
+           "`year_month` VARCHAR(16) NOT NULL , ".
            "`type` VARCHAR(16) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
@@ -315,6 +316,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `robot` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+           "`year_month` VARCHAR(16) NOT NULL , ".
            "`name` VARCHAR(128) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
@@ -1123,16 +1125,16 @@ my $max = $datanumelem[Search_Sec("FILETYPES")];
 for (my $i=0; $i<$max; $i++)
 {
   Read_FileTypes($i);
-  $sth = $dbh->prepare("SELECT COUNT(*) FROM filetypes WHERE `type`='".$ft{'type'}."'");
+  $sth = $dbh->prepare("SELECT COUNT(*) FROM filetypes WHERE `year_month`= '".$year_month."' AND `type`='".$ft{'type'}."'");
   $sth->execute();
   my $count = $sth->fetchrow_array();
   $sth->finish();
 
   $sql = " `filetypes` SET `type`='".$ft{'type'}."', `hits`='".$ft{'hits'}."', ".
          "`bandwidth`='".$ft{'bandwidth'}."', `bwwithoutcompress`='".$ft{'bwwithoutcompress'}."', ".
-         "`bwaftercompress`='".$ft{'bwaftercompress'}."'";
+         "`bwaftercompress`='".$ft{'bwaftercompress'}."', `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
-  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `type`='".$ft{'type'}."' LIMIT 1;"; }
+  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month`= '".$year_month."' AND  `type`='".$ft{'type'}."' LIMIT 1;"; }
   else { error("There are repeated file types into the 'filetypes' table of ".$SiteConfig."\n"); }
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'filetypes' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
@@ -1204,7 +1206,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Robot($i);
   $sql = "INSERT INTO `robot` SET `name`='".$robot{'name'}."', `hits`='".$robot{'hits'}."', ".
-         "`bandwidth`='".$robot{'bandwidth'}."', `lastvisit`='".$robot{'lastvisit'}."', ".
+         "`bandwidth`='".$robot{'bandwidth'}."', `lastvisit`='".$robot{'lastvisit'}."', `year_month` = '".$year_month."', ".
          "`hitsrobots`='".$robot{'hitsrobots'}."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'robot' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }

@@ -4,7 +4,7 @@ TODO List:
 
 - 主动获取指定目录下的全部配置文件，然后获取全部的配置的config--编写脚本来实现；
 
-- 每月都会覆盖的表的问题：session，filetypes，robot ，pages，origin,unkos与unkbrowser表；
+- 每月都会覆盖的表的问题：filetypes，robot ，pages，origin,unkos与unkbrowser表；
 
   errors,error404，visitors也是一样
 
