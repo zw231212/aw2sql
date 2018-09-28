@@ -232,11 +232,12 @@ sub Create_Table
   elsif($_[0] eq "domain")
   {
     $s = "CREATE TABLE `domain` ( ".
+           "`year_month` VARCHAR(16) NOT NULL , ".
            "`code` VARCHAR(16) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `code` ) );";
+           "PRIMARY KEY ( `year_month`, `code` ) );";
   }
   elsif($_[0] eq "os")
   {
@@ -1020,15 +1021,15 @@ my $max = $datanumelem[Search_Sec("DOMAIN")];
 for (my $i=0; $i<$max; $i++)
 {
   Read_Domain($i);
-  $sth = $dbh->prepare("SELECT COUNT(*) FROM domain WHERE `code`='".$domain{'code'}."'");
+  $sth = $dbh->prepare("SELECT COUNT(*) FROM domain WHERE `year_month` = '".$year_month."' AND `code`='".$domain{'code'}."'");
   $sth->execute();
   my $count = $sth->fetchrow_array();
   $sth->finish();
 
   $sql = " `domain` SET `code`='".$domain{'code'}."', `pages`='".$domain{'pages'}."', ".
-         "`hits`='".$domain{'hits'}."', `bandwidth`='".$domain{'bandwidth'}."'";
+         "`hits`='".$domain{'hits'}."', `bandwidth`='".$domain{'bandwidth'}."' , `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
-  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `code`='".$domain{'code'}."' LIMIT 1;"; }
+  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month` = '".$year_month."' AND `code`='".$domain{'code'}."' LIMIT 1;"; }
   else { error("There are repeated regional codes into the 'domain' table of ".$SiteConfig."\n"); }
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'domain' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
