@@ -36,7 +36,7 @@ $nowsec $nowmin $nowhour $nowday $nowmonth $nowyear $nowwday $nowyday
 $dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
 %general %daily %hours %session %domain %os %unkos %browser %unkbrowser %ft
 %screen %misc %worms %robot %errors %e404 %visit %pages %origin
-%searchref %pageref %searchwords %searchkeywords
+%searchref %pageref %searchwords %searchkeywords $year_month
 /;
 
 $DataDir='/opt/awstats/results/'; # <=== Directory where you store the awstats temp files
@@ -214,11 +214,12 @@ sub Create_Table
   elsif($_[0] eq "hours")
   {
     $s = "CREATE TABLE `hours` ( ".
+           "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`hour` TINYINT UNSIGNED NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `hour` ) );";
+           "PRIMARY KEY ( `year_month`, `hour` ) );";
   }
   elsif($_[0] eq "session")
   {
@@ -888,6 +889,9 @@ elsif (($YearConfig < 1900) || ($YearConfig > 2100)) { error("Wrong Year"); }
 # Well, I don't think this script lives until the year 2100
 # but who knows? xD ... I don't want a Year 2KC effect xDDD
 
+## 设置全局变量year_month
+$year_month = $YearConfig.$MonthConfig;
+
 #create the database if the db is not exists
 $dbh = DBI->connect("DBI:mysql:host=$dbhost",$dbuser,$dbpass,{'RaiseError'=>1});
 my $rdb_name = "`".$SiteConfig."_log`";
@@ -970,15 +974,14 @@ if(! Search_Table("hours")) { Create_Table("hours"); }
 for (my $i=0; $i<=23; $i++)
 {
   Read_Hours($i);
-  $sth = $dbh->prepare("SELECT COUNT(*) FROM hours WHERE `hour`='".$i."'");
+  $sth = $dbh->prepare("SELECT COUNT(*) FROM hours WHERE `year_month`='".$year_month."' AND `hour` = '".$i."'");
   $sth->execute();
   my $count = $sth->fetchrow_array();
   $sth->finish();
-
   $sql = " `hours` SET `hour`='".$hours{'hour'}."', `pages`='".$hours{'pages'}."', ".
-         " `hits`='".$hours{'hits'}."', `bandwidth`='".$hours{'bandwidth'}."'";
+         " `hits`='".$hours{'hits'}."', `bandwidth`='".$hours{'bandwidth'}."', `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
-  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `hour`='".$i."' LIMIT 1;"; }
+  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month`='".$year_month."' AND `hour` = '".$i."'LIMIT 1;"; }
   else { error("There are repeated hours into the 'hours' table of ".$SiteConfig."\n"); }
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new rows to the 'hours' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
