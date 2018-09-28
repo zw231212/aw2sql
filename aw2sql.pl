@@ -290,14 +290,16 @@ sub Create_Table
   elsif($_[0] eq "screen")
   {
     $s = "CREATE TABLE `screen` ( ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`size` VARCHAR(32) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `size` ) );";
+           "PRIMARY KEY ( `year_month`, `size` ) );";
   }
   elsif($_[0] eq "misc")
   {
     $s = "CREATE TABLE `misc` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`text` VARCHAR(128) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -308,6 +310,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `worms` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`text` VARCHAR(128) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
@@ -384,6 +387,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `searchref` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`engine` VARCHAR(128) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -393,6 +397,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `pageref` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`url` VARCHAR(255) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -402,6 +407,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `searchwords` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`words` VARCHAR(255) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "PRIMARY KEY ( `id` ) );";
@@ -410,6 +416,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `searchkeywords` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`words` VARCHAR(255ll) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "PRIMARY KEY ( `id` ) );";
@@ -1156,14 +1163,14 @@ my $max = $datanumelem[Search_Sec("SCREENSIZE")];
 for (my $i=0; $i<$max; $i++)
 {
   Read_Screen($i);
-  $sth = $dbh->prepare("SELECT COUNT(*) FROM screen WHERE `size`='".$screen{'size'}."'");
+  $sth = $dbh->prepare("SELECT COUNT(*) FROM screen WHERE `year_month` = '".$year_month."' AND `size`='".$screen{'size'}."'");
   $sth->execute();
   my $count = $sth->fetchrow_array();
   $sth->finish();
 
-  $sql = " `screen` SET `size`='".$screen{'size'}."', `hits`='".$screen{'hits'}."'";
+  $sql = " `screen` SET `size`='".$screen{'size'}."', `hits`='".$screen{'hits'}."', `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
-  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `size`='".$screen{'size'}."' LIMIT 1;"; }
+  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month` = '".$year_month."' AND  `size`='".$screen{'size'}."' LIMIT 1;"; }
   else { error("There are repeated screen resolutions into the 'screen' table of ".$SiteConfig."\n"); }
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'screen' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
@@ -1176,12 +1183,12 @@ for (my $i=0; $i<$max; $i++)
 if(! Search_Table("misc")) { Create_Table("misc"); }
 my $max = $datanumelem[Search_Sec("MISC")];
 
-$rows = $dbh->do("TRUNCATE TABLE `misc`"); # Empty the table
+$rows = $dbh->do("DELETE FROM `misc` WHERE `year_month` = '".$year_month."';"); # Empty the table
 for (my $i=0; $i<$max; $i++)
 {
   Read_Misc($i);
   $sql = "INSERT INTO `misc` SET `text`='".$misc{'text'}."', `pages`='".$misc{'pages'}."', ".
-         " `hits`='".$misc{'hits'}."', `bandwidth`='".$misc{'bandwidth'}."';";
+         " `hits`='".$misc{'hits'}."', `bandwidth`='".$misc{'bandwidth'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'misc' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1192,12 +1199,12 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("worms")) { Create_Table("worms"); }
 my $max = $datanumelem[Search_Sec("WORMS")];
-$rows = $dbh->do("TRUNCATE TABLE `worms`"); # Empty the table
+$rows = $dbh->do("DELETE FROM `worms` WHERE `year_month` = '".$year_month."';"); # Empty the table
 for (my $i=0; $i<$max; $i++)
 {
   Read_Misc($i);
   $sql = "INSERT INTO `worms` SET `text`='".$worms{'text'}."', `hits`='".$worms{'hits'}."', ".
-         "`bandwidth`='".$worms{'bandwidth'}."', `lastvisit`='".$worms{'lastvisit'}."';";
+         "`bandwidth`='".$worms{'bandwidth'}."', `lastvisit`='".$worms{'lastvisit'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'worms' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1339,12 +1346,12 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("searchref")) { Create_Table("searchref"); }
 my $max = $datanumelem[Search_Sec("SEREFERRALS")];
-$rows = $dbh->do("TRUNCATE TABLE `searchref`");
+$rows = $dbh->do("DELETE FROM `searchref` WHERE`year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Searchref($i);
   $sql = "INSERT INTO `searchref` SET `engine`='".$searchref{'engine'}."', `pages`='".$searchref{'pages'}."', ".
-         "`hits`='".$searchref{'hits'}."';";
+         "`hits`='".$searchref{'hits'}."',`year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'searchref' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1355,12 +1362,12 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("pageref")) { Create_Table("pageref"); }
 my $max = $datanumelem[Search_Sec("PAGEREFS")];
-$rows = $dbh->do("TRUNCATE TABLE `pageref`");
+$rows = $dbh->do("DELETE FROM `pageref` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Pageref($i);
   $sql = "INSERT INTO `pageref` SET `url`='".$pageref{'url'}."', `pages`='".$pageref{'pages'}."', ".
-         "`hits`='".$pageref{'hits'}."';";
+         "`hits`='".$pageref{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'pageref' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1371,11 +1378,11 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("searchwords")) { Create_Table("searchwords"); }
 my $max = $datanumelem[Search_Sec("SEARCHWORDS")];
-$rows = $dbh->do("TRUNCATE TABLE `searchwords`");
+$rows = $dbh->do("DELETE FROM `searchwords` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Searchwords($i);
-  $sql = "INSERT INTO `searchwords` SET `words`='".$searchwords{'words'}."', `hits`='".$searchwords{'hits'}."';";
+  $sql = "INSERT INTO `searchwords` SET `words`='".$searchwords{'words'}."', `hits`='".$searchwords{'hits'}."',`year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'searchwords' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1386,11 +1393,11 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("searchkeywords")) { Create_Table("searchkeywords"); }
 my $max = $datanumelem[Search_Sec("KEYWORDS")];
-$rows = $dbh->do("TRUNCATE TABLE `searchkeywords`");
+$rows = $dbh->do("DELETE FROM `searchkeywords` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Searchkeywords($i);
-  $sql = "INSERT INTO `searchkeywords` SET `words`='".$searchkeywords{'words'}."', `hits`='".$searchkeywords{'hits'}."';";
+  $sql = "INSERT INTO `searchkeywords` SET `words`='".$searchkeywords{'words'}."', `hits`='".$searchkeywords{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'searchkeywords' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
