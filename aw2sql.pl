@@ -271,6 +271,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `unkbrowser` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`agent` VARCHAR(255) NOT NULL , ".
            "`lastvisit` VARCHAR(64) NOT NULL , ".
            "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
@@ -1109,12 +1110,12 @@ for (my $i=0; $i<$max; $i++)
 if(! Search_Table("unkbrowser")) { Create_Table("unkbrowser"); }
 my $max = $datanumelem[Search_Sec("UNKNOWNREFERERBROWSER")];
 
-$rows = $dbh->do("TRUNCATE TABLE `unkbrowser`"); # Vaciamos la tabla
+$rows = $dbh->do("DELETE FROM `unkbrowser` WHERE `year_month` ='".$year_month."' ;"); # Vaciamos la tabla
 for (my $i=0; $i<$max; $i++)
 {
   Read_unkbrowser($i);
 
-  $sql = "INSERT INTO `unkbrowser` SET `agent`='".$unkbrowser{'agent'}."', `lastvisit`='".$unkbrowser{'lastvisit'}."';";
+  $sql = "INSERT INTO `unkbrowser` SET `agent`='".$unkbrowser{'agent'}."',`year_month` = '".$year_month."', `lastvisit`='".$unkbrowser{'lastvisit'}."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'unkbrowser' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
