@@ -6,7 +6,7 @@ TODO List:
 
 - hours表每次每月都会覆盖，要根据年月来作为id生成——增加新列；
 
-  domain，session，filetypes，robot .pages，origin,unkos与unkbrowser表；
+  domain，session，filetypes，robot ，pages，origin,unkos与unkbrowser表；
 
   errors,error404，visitors也是一样
 
@@ -20,7 +20,7 @@ TODO List:
 
 - Use other database, not only MySQL.
 
-- Give the user, the option of what he wants to create. �What
+- Give the user, the option of what he wants to create. What
  tables? monthly or historically?
 
 - Analyze and store the mail and ftp results, not only the web.
