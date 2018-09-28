@@ -330,14 +330,16 @@ sub Create_Table
   {
     $s = "CREATE TABLE `errors` ( ".
            "`code` VARCHAR(16) NOT NULL , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `code` ) );";
+           "PRIMARY KEY (`year_month`, `code` ) );";
   }
   elsif($_[0] eq "errors404")
   {
     $s = "CREATE TABLE `errors404` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+            "`year_month` VARCHAR(16) NOT NULL , ".
            "`url` VARCHAR(256) NOT NULL , ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
            "`referer` VARCHAR(256) NOT NULL , ".
@@ -1222,12 +1224,12 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("errors")) { Create_Table("errors"); }
 my $max = $datanumelem[Search_Sec("ERRORS")];
-$rows = $dbh->do("TRUNCATE TABLE `errors`"); # Empty the table
+$rows = $dbh->do("DELETE FROM `errors` WHERE `year_month` = '".$year_month."';"); # Empty the table
 for (my $i=0; $i<$max; $i++)
 {
   Read_Errors($i);
   $sql = "INSERT INTO `errors` SET `code`='".$errors{'code'}."', `hits`='".$errors{'hits'}."', ".
-         "`bandwidth`='".$errors{'bandwidth'}."';";
+         "`bandwidth`='".$errors{'bandwidth'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'errors' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1240,13 +1242,13 @@ for (my $i=0; $i<$max; $i++)
 # Some of the errors can risk the security of the DB
 if(! Search_Table("errors404")) { Create_Table("errors404"); }
 my $max = $datanumelem[Search_Sec("SIDER_404")];
-$rows = $dbh->do("TRUNCATE TABLE `errors404`"); # Empty the table
+$rows = $dbh->do("DELETE FROM `errors404` WHERE `year_month` = '".$year_month."';"); # Empty the table
 for (my $i=0; $i<$max; $i++)
 {
   Read_Errors404($i);
   $e404{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
   $sql = "INSERT INTO `errors404` SET `url`='".$e404{'url'}."', `hits`='".$e404{'hits'}."', ".
-         "`referer`='".$e404{'referer'}."';";
+         "`referer`='".$e404{'referer'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'errors404' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
