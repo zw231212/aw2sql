@@ -253,6 +253,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `unkos` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`agent` VARCHAR(255) NOT NULL , ".
            "`lastvisit` VARCHAR(64) NOT NULL , ".
            "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
@@ -1069,12 +1070,12 @@ for (my $i=0; $i<$max; $i++)
 if(! Search_Table("unkos")) { Create_Table("unkos"); }
 my $max = $datanumelem[Search_Sec("UNKNOWNREFERER")];
 
-$rows = $dbh->do("TRUNCATE TABLE `unkos`"); # Vaciamos la tabla
+$rows = $dbh->do("DELETE FROM `unkos` WHERE `year_month` = '".$year_month."';"); # Vaciamos la tabla
 for (my $i=0; $i<$max; $i++)
 {
   Read_unkos($i);
 
-  $sql = "INSERT INTO `unkos` SET `agent`='".$unkos{'agent'}."', `lastvisit`='".$unkos{'lastvisit'}."';";
+  $sql = "INSERT INTO `unkos` SET `agent`='".$unkos{'agent'}."', `lastvisit`='".$unkos{'lastvisit'}."',`year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'unkos' table in the".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1277,7 +1278,7 @@ for (my $i=0; $i<$max; $i++)
 # Pages readed this month
 if(! Search_Table("pages")) { Create_Table("pages"); }
 my $max = $datanumelem[Search_Sec("SIDER")];
-$rows = $dbh->do("DELETE FROM `pages` WHERE `year_month` = '".$year_month."'");
+$rows = $dbh->do("DELETE FROM `pages` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Pages($i);
@@ -1318,7 +1319,7 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("origin")) { Create_Table("origin"); }
 my $max = $datanumelem[Search_Sec("ORIGIN")];
-$rows = $dbh->do("DELETE FROM `origin` WHERE `year_month` = '".$year_month."'");
+$rows = $dbh->do("DELETE FROM `origin` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Origin($i);
