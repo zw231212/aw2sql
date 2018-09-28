@@ -15,7 +15,8 @@ Aw2Sql  <br/>
 
 （5）domain表每次每月都会覆盖，修改为：根据年月+code来作为id生成,,表增加新列year_month；
 session表是根据year_month+range来作为key；pages和robot只是增加一列year_month，
-而且修改初始的清空表的操作，只是删除当前year_month相同的数据列;
+而且修改初始的清空表的操作，只是删除当前year_month相同的数据列;origin表增加year_month,
+year_month+from来作为key，同时修改一开始清空表格为删除数据的操作；
 filetypes是根据year_montj+type来作为key；
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
