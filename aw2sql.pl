@@ -225,6 +225,7 @@ sub Create_Table
   elsif($_[0] eq "session")
   {
     $s = "CREATE TABLE `session` ( ".
+          "`year_month` VARCHAR( 16 ) NOT NULL , ".
            "`range` VARCHAR(64) NOT NULL , ".
            "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
            "PRIMARY KEY ( `range` ) );";
@@ -999,14 +1000,14 @@ my $max = $datanumelem[Search_Sec("SESSION")];
 for (my $i=0; $i<$max; $i++)
 {
   Read_Session($i);
-  $sth = $dbh->prepare("SELECT COUNT(*) FROM session WHERE `range`='".$session{'range'}."'");
+  $sth = $dbh->prepare("SELECT COUNT(*) FROM session WHERE `year_month` = '".$year_month."' AND `range`='".$session{'range'}."'");
   $sth->execute();
   my $count = $sth->fetchrow_array();
   $sth->finish();
 
-  $sql = " `session` SET `range`='".$session{'range'}."', `visits`='".$session{'visits'}."'";
+  $sql = " `session` SET `range`='".$session{'range'}."', `visits`='".$session{'visits'}."',  `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
-  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `range`='".$session{'range'}."' LIMIT 1;"; }
+  elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month` = '".$year_month."' AND  `range`='".$session{'range'}."' LIMIT 1;"; }
   else { error("There are repeated times into the 'session' table of ".$SiteConfig."\n"); }
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'session' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }

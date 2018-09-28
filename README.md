@@ -14,6 +14,7 @@ Aw2Sql  <br/>
 （4）hours表每次每月都会覆盖，修改为：根据年月+hour来作为id生成,表增加新列year_month；
 
 （5）domain表每次每月都会覆盖，修改为：根据年月+code来作为id生成,,表增加新列year_month；
+session表是根据year_month+range来作为key；
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
