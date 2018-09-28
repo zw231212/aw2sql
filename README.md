@@ -22,6 +22,8 @@ unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当�
 修改errors表，增加year_month+type为key，增加year_month列到error_404表；
 增加visitors表上的year_month列，修改一开始的清空表格为删除；
 
+（6）对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
+
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
 
