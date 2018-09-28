@@ -23,7 +23,8 @@
 #
 
 require 5.005;
-#use warnings;
+# use warnings;
+# use warnings FATAL => 'all';
 use DBI;
 use Getopt::Long;
 use Time::Local;
@@ -42,7 +43,7 @@ $dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
 $DataDir='/opt/awstats/results/'; # <=== Directory where you store the awstats temp files
 $dbuser='root';           # <=== You must select a username
 $dbpass='Tiger!2018';         # <=== You must select a password
-$dbhost='10.2.16.3';      # <=== ¿Where is the database?
+$dbhost='10.2.16.3';      # <=== Where is the database?
 my $dbport='3306';
 
 $VERSION="0.1"; # Version of this script
@@ -889,7 +890,7 @@ elsif (($YearConfig < 1900) || ($YearConfig > 2100)) { error("Wrong Year"); }
 # Well, I don't think this script lives until the year 2100
 # but who knows? xD ... I don't want a Year 2KC effect xDDD
 
-## ÉèÖÃÈ«¾Ö±äÁ¿year_month
+## ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½year_month
 $year_month = $YearConfig.$MonthConfig;
 
 #create the database if the db is not exists
