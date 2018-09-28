@@ -369,10 +369,11 @@ sub Create_Table
   elsif($_[0] eq "origin")
   {
     $s = "CREATE TABLE `origin` ( ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
            "`from` VARCHAR(64) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `from` ) );";
+           "PRIMARY KEY (`year_month`, `from` ) );";
   }
   elsif($_[0] eq "searchref")
   {
@@ -1317,12 +1318,12 @@ for (my $i=0; $i<$max; $i++)
 
 if(! Search_Table("origin")) { Create_Table("origin"); }
 my $max = $datanumelem[Search_Sec("ORIGIN")];
-$rows = $dbh->do("TRUNCATE TABLE `origin`");
+$rows = $dbh->do("DELETE FROM `origin` WHERE `year_month` = '".$year_month."'");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Origin($i);
   $sql = "INSERT INTO `origin` SET `from`='".$origin{'from'}."', `pages`='".$origin{'pages'}."', ".
-         "`hits`='".$origin{'hits'}."';";
+         "`hits`='".$origin{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'origin' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
