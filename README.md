@@ -19,6 +19,8 @@ session表是根据year_month+range来作为key；pages和robot只是增加一�
 year_month+from来作为key，同时修改一开始清空表格为删除数据的操作；
 filetypes是根据year_montj+type来作为key；
 unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当前year_month的信息；
+修改errors表，增加year_month+type为key，增加year_month列到error_404表；
+增加visitors表上的year_month列，修改一开始的清空表格为删除；
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
@@ -113,6 +115,10 @@ Basic Usage
      
 Changelog
 -----------
+2018-09-28 zzq <191550636@qq.com>
+
+        * 修改表结构，在一些清空表格的操作上，修改为删除当前year和month相同的数据，同时对于大部分的表增加一列year_month，同时修改一些表的key；
+
 2018-09-24 zzq <191550636@qq.com>
 
         * 自动创建数据库；

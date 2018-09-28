@@ -349,6 +349,7 @@ sub Create_Table
   {
     $s = "CREATE TABLE `visitors` ( ".
            "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
            "`host` VARCHAR(255) NOT NULL , ".
            "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
            "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -1260,13 +1261,13 @@ for (my $i=0; $i<$max; $i++)
 # Visitors of the month (as in awstats)
 if(! Search_Table("visitors")) { Create_Table("visitors"); }
 my $max = $datanumelem[Search_Sec("VISITOR")];
-$rows = $dbh->do("TRUNCATE TABLE `visitors`");
+$rows = $dbh->do("DELETE FROM `visitors` WHERE `year_month` = '".$year_month."';");
 for (my $i=0; $i<$max; $i++)
 {
   Read_Visitors($i);
   $sql = "INSERT INTO `visitors` SET `host`='".$visit{'host'}."', `pages`='".$visit{'pages'}."', ".
          "`hits`='".$visit{'hits'}."', `bandwidth`='".$visit{'bandwidth'}."', ".
-         "`lastvisit`='".$visit{'lastvisit'}."'";
+         "`lastvisit`='".$visit{'lastvisit'}."', `year_month` = '".$year_month."' ";
   if(!($visit{'startlastvisit'} eq '')) { $sql = $sql . ", `startlastvisit`='".$visit{'startlastvisit'}."'"; }
   if(!($visit{'lastpage'} eq '')) { $sql = $sql . ", `lastpage`='".$visit{'lastpage'}."'";}
   $sql = $sql .";";
