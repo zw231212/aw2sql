@@ -39,7 +39,8 @@ use vars qw/
         $dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
         %general %daily %hours %session %domain %os %unkos %browser %unkbrowser %ft
         %screen %misc %worms %robot %errors %e404 %visit %pages %origin
-        %searchref %pageref %searchwords %searchkeywords $year_month $dbport
+        %searchref %pageref %searchwords %searchkeywords %downloads
+        $year_month $dbport
 /;
 
 my $configInfo = LoadFile('./conf/aw2sql-conf.yml');
@@ -193,7 +194,7 @@ sub Create_Table
   my $s;
   if($_[0] eq "general")
   {
-    $s = "CREATE TABLE `general` ( ".
+    $s = "CREATE TABLE IF NOT EXISTS `general` ( ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
         "`visits_unique` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -209,7 +210,7 @@ sub Create_Table
   }
   elsif($_[0] eq "daily")
   {
-    $s = "CREATE TABLE `daily` ( ".
+    $s = "CREATE TABLE IF NOT EXISTS  `daily` ( ".
         "`day` VARCHAR( 64 ) NOT NULL , ".
         "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
         "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -219,7 +220,7 @@ sub Create_Table
   }
   elsif($_[0] eq "hours")
   {
-    $s = "CREATE TABLE `hours` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `hours` ( ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`hour` TINYINT UNSIGNED NOT NULL , ".
         "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -229,7 +230,7 @@ sub Create_Table
   }
   elsif($_[0] eq "session")
   {
-    $s = "CREATE TABLE `session` ( ".
+    $s = "CREATE TABLE IF NOT EXISTS  `session` ( ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`range` VARCHAR(64) NOT NULL , ".
         "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -237,7 +238,7 @@ sub Create_Table
   }
   elsif($_[0] eq "domain")
   {
-    $s = "CREATE TABLE `domain` ( ".
+    $s = "CREATE TABLE IF NOT EXISTS  `domain` ( ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`code` VARCHAR(16) NOT NULL , ".
         "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -247,7 +248,7 @@ sub Create_Table
   }
   elsif($_[0] eq "os")
   {
-    $s = "CREATE TABLE `os` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `os` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`name` VARCHAR(64) NOT NULL , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
@@ -256,7 +257,7 @@ sub Create_Table
   }
   elsif($_[0] eq "unkos")
   {
-    $s = "CREATE TABLE `unkos` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `unkos` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`agent` VARCHAR(255) NOT NULL , ".
@@ -265,7 +266,7 @@ sub Create_Table
   }
   elsif($_[0] eq "browser")
   {
-    $s = "CREATE TABLE `browser` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `browser` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`name` VARCHAR(64) NOT NULL , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
@@ -274,7 +275,7 @@ sub Create_Table
   }
   elsif($_[0] eq "unkbrowser")
   {
-    $s = "CREATE TABLE `unkbrowser` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `unkbrowser` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`agent` VARCHAR(255) NOT NULL , ".
@@ -283,7 +284,7 @@ sub Create_Table
   }
   elsif($_[0] eq "filetypes")
   {
-    $s = "CREATE TABLE `filetypes` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `filetypes` ( ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`type` VARCHAR(16) NOT NULL , ".
         "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -294,7 +295,7 @@ sub Create_Table
   }
   elsif($_[0] eq "screen")
   {
-    $s = "CREATE TABLE `screen` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `screen` ( ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`size` VARCHAR(32) NOT NULL , ".
         "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -302,7 +303,7 @@ sub Create_Table
   }
   elsif($_[0] eq "misc")
   {
-    $s = "CREATE TABLE `misc` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `misc` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`text` VARCHAR(128) NOT NULL , ".
@@ -313,7 +314,7 @@ sub Create_Table
   }
   elsif($_[0] eq "worms")
   {
-    $s = "CREATE TABLE `worms` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `worms` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`text` VARCHAR(128) NOT NULL , ".
@@ -324,7 +325,7 @@ sub Create_Table
   }
   elsif($_[0] eq "robot")
   {
-    $s = "CREATE TABLE `robot` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `robot` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`name` VARCHAR(128) NOT NULL , ".
@@ -336,7 +337,7 @@ sub Create_Table
   }
   elsif($_[0] eq "errors")
   {
-    $s = "CREATE TABLE `errors` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `errors` ( ".
         "`code` VARCHAR(16) NOT NULL , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
@@ -345,7 +346,7 @@ sub Create_Table
   }
   elsif($_[0] eq "errors404")
   {
-    $s = "CREATE TABLE `errors404` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `errors404` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`url` VARCHAR(256) NOT NULL , ".
@@ -355,7 +356,7 @@ sub Create_Table
   }
   elsif($_[0] eq "visitors")
   {
-    $s = "CREATE TABLE `visitors` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `visitors` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`host` VARCHAR(255) NOT NULL , ".
@@ -369,7 +370,7 @@ sub Create_Table
   }
   elsif($_[0] eq "pages")
   {
-    $s = "CREATE TABLE `pages` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `pages` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`url` VARCHAR(255) NOT NULL , ".
@@ -381,7 +382,7 @@ sub Create_Table
   }
   elsif($_[0] eq "origin")
   {
-    $s = "CREATE TABLE `origin` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `origin` ( ".
         "`year_month` VARCHAR(16) NOT NULL , ".
         "`from` VARCHAR(64) NOT NULL , ".
         "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
@@ -390,7 +391,7 @@ sub Create_Table
   }
   elsif($_[0] eq "searchref")
   {
-    $s = "CREATE TABLE `searchref` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `searchref` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`engine` VARCHAR(128) NOT NULL , ".
@@ -400,7 +401,7 @@ sub Create_Table
   }
   elsif($_[0] eq "pageref")
   {
-    $s = "CREATE TABLE `pageref` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `pageref` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`url` VARCHAR(255) NOT NULL , ".
@@ -410,7 +411,7 @@ sub Create_Table
   }
   elsif($_[0] eq "searchwords")
   {
-    $s = "CREATE TABLE `searchwords` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `searchwords` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
         "`words` VARCHAR(255) NOT NULL , ".
@@ -419,14 +420,24 @@ sub Create_Table
   }
   elsif($_[0] eq "searchkeywords")
   {
-    $s = "CREATE TABLE `searchkeywords` ( ".
+    $s = "CREATE TABLE  IF NOT EXISTS `searchkeywords` ( ".
         "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-        "`words` VARCHAR(255ll) NOT NULL , ".
+        "`words` VARCHAR(255) NOT NULL , ".
         "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
         "PRIMARY KEY ( `id` ) );";
   }
-
+  elsif($_[0] eq "downloads")
+  {
+    $s = "CREATE TABLE IF NOT EXISTS  `downloads` ( ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`url` VARCHAR(255) NOT NULL , ".
+        "`downloads` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
+  }
   $dbh->do($s);
 }
 
@@ -842,7 +853,7 @@ sub Read_Searchwords
 }
 
 #------------------------------------------------------------------------------
-# Function:   Creates the data with the search words
+# Function:   Creates the data with the search keywords
 # Parameters: The word
 # Input:    @data
 # Output:   %searchkeywords
@@ -853,6 +864,20 @@ sub Read_Searchkeywords
   my $sec = Search_Sec("KEYWORDS");
   my $id = $_[0];
   ($searchkeywords{'words'}, $searchkeywords{'hits'}) = split(/ /, $data[$sec][$id]);
+}
+
+#------------------------------------------------------------------------------
+# Function:   Creates the data with the downloads
+#Parameters: The row we want to read
+# Input:    @data
+# Output:   %downloads
+# Return:   None
+#------------------------------------------------------------------------------
+sub Read_Downloads
+{
+  my $sec = Search_Sec("DOWNLOADS");
+  my $id = $_[0];
+  ($downloads{'url'}, $downloads{'downloads'}, $downloads{'hits'}, $downloads{'bandwidth'}) = split(/ /, $data[$sec][$id]);
 }
 
 ########
@@ -925,7 +950,7 @@ $dbh->do("CREATE DATABASE IF NOT EXISTS $rdb_name;");
 Read_Data();  # Reads the temp data file of awstats
 
 
-# Access the database. The database must exists.
+# Access the database. The database must exists.not necessary, if not existed , we create it before;
 $dsn = "DBI:mysql:database=".$SiteConfig."_log;host=".$dbhost;
 # Connect to the database
 $dbh = DBI->connect($dsn,$dbuser,$dbpass, {RaiseError => 0, PrintError => 0})
@@ -1427,6 +1452,23 @@ for (my $i=0; $i<$max; $i++)
   $sql = "INSERT INTO `searchkeywords` SET `words`='".$searchkeywords{'words'}."', `hits`='".$searchkeywords{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'searchkeywords' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+}
+
+###################
+# downloads TABLE #
+###################
+
+if(! Search_Table("downloads")) { Create_Table("downloads"); }
+my $max = $datanumelem[Search_Sec("DOWNLOADS")];
+
+$rows = $dbh->do("DELETE FROM `downloads` WHERE `year_month` = '".$year_month."';"); # Empty the table
+for (my $i=0; $i<$max; $i++)
+{
+  Read_Downloads($i);
+  $sql = "INSERT INTO `downloads` SET `url`='".$downloads{'url'}."', `downloads`='".$downloads{'downloads'}."', ".
+      " `hits`='".$downloads{'hits'}."', `bandwidth`='".$downloads{'bandwidth'}."', `year_month` = '".$year_month."';";
+  $rows = $dbh->do($sql);
+  if(!$rows) { error("We can't add a new row to the 'downloads' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
 
 
