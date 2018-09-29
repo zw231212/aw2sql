@@ -30,6 +30,7 @@ use DBI;
 use Getopt::Long;
 use Time::Local;
 use YAML::XS 'LoadFile';
+use Data::Dumper;
 
 use vars qw/
     $VERSION $DIR $PROG $Extension $SiteConfig $DataDir $MonthConfig $YearConfig $help
@@ -912,7 +913,7 @@ elsif (($YearConfig < 1900) || ($YearConfig > 2100)) { error("Wrong Year"); }
 # Well, I don't think this script lives until the year 2100
 # but who knows? xD ... I don't want a Year 2KC effect xDDD
 
-## ����ȫ�ֱ���year_month
+## add a global param year_month, it should be in ervery table ,daily table have a column day contain this infomation;
 $year_month = $YearConfig.$MonthConfig;
 
 #create the database if the db is not exists
@@ -1090,8 +1091,14 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_unkos($i);
 
-  $sql = "INSERT INTO `unkos` SET `agent`='".$unkos{'agent'}."', `lastvisit`='".$unkos{'lastvisit'}."',`year_month` = '".$year_month."';";
-  $rows = $dbh->do($sql);
+  $sql = "INSERT INTO `unkos` SET `agent`=?, `lastvisit`='".$unkos{'lastvisit'}."',`year_month` = '".$year_month."';";
+  my $prepare = $dbh->prepare($sql);
+  my $osagentInfo = $unkos{'agent'};
+  if(length($osagentInfo) > 255){
+    $osagentInfo = substr($osagentInfo,0, 255);
+  }
+
+  $rows = $prepare->execute($osagentInfo);
   if(!$rows) { error("We can't add a new row to the 'unkos' table in the".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
 
@@ -1129,9 +1136,17 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_unkbrowser($i);
 
-  $sql = "INSERT INTO `unkbrowser` SET `agent`='".$unkbrowser{'agent'}."',`year_month` = '".$year_month."', `lastvisit`='".$unkbrowser{'lastvisit'}."';";
-  $rows = $dbh->do($sql);
-  if(!$rows) { error("We can't add a new row to the 'unkbrowser' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+  $sql = "INSERT INTO `unkbrowser` SET `agent`=?,`year_month` = '".$year_month."', `lastvisit`='".$unkbrowser{'lastvisit'}."';";
+  my $unkBrowserprepare = $dbh->prepare($sql);
+  my $agentInfo = $unkbrowser{'agent'};
+  if(length($agentInfo) > 255){
+    $agentInfo = substr($agentInfo,0, 255);
+  }
+
+  $rows = $unkBrowserprepare->execute($agentInfo);
+  if(!$rows) {
+    print($agentInfo."\n");
+    error("We can't add a new row to the 'unkbrowser' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
 
 ###################
@@ -1301,6 +1316,9 @@ for (my $i=0; $i<$max; $i++)
   if(!$urlInfo){
     next;
   }
+  if(length($urlInfo)>255){
+    $urlInfo = substr($urlInfo,0,255);
+  }
   my $pagesNum = $pages{'pages'};
   $pagesNum = $pagesNum?$pagesNum:0;
 
@@ -1313,11 +1331,16 @@ for (my $i=0; $i<$max; $i++)
   my $exitNum = $pages{'exit'};
   $exitNum = $exitNum?$exitNum:0;
 
-  $sql = "INSERT INTO `pages` SET `url`=\"".$pages{'url'}."\", `pages`='$pagesNum', ".
-      "`bandwidth`='$bandWidthNum', `entry`='$entryNum', `year_month` = '".$year_month."', ".
-      "`exit`='$exitNum';";
-  $rows = $dbh->do($sql);
-  if(!$rows) { error("We can't add a new entry to the 'pages' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+  $sql = "INSERT INTO `pages` SET `url`=?, `pages`=?, ".
+      "`bandwidth`=?, `entry`=?, `year_month` = ?, ".
+      "`exit`=?;";
+  my $prepare = $dbh->prepare($sql);
+  $rows = $prepare->execute($urlInfo,$pagesNum,$bandWidthNum,$entryNum,$year_month,$exitNum)
+      or die "We can't add a new entry to the 'pages' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)" ;
+  if(!$rows) {
+    print($urlInfo."\n");
+    next;
+  }
 }
 
 ################
