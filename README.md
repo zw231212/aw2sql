@@ -24,6 +24,8 @@ unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当�
 
 （6）对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
 
+（7）增加从conf/aw2sql-conf.yml来读取数据库的配置文件的操作；
+
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
@@ -49,12 +51,13 @@ Basic Usage
       (3)DBI
       (4)Data-ShowTable
       (5)DBD-mysql
+      (6)YAML::XS(可以使用cpan intsall YAML:XS来安装)
       at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
      
      
     1st: Copy aw2sql.pl script to the awstats directory （not necessary）
 
-    2nd: Edit aw2sql.pl and change the values of:
+    2nd: Edit aw2sql.pl and change the values of: （changed，you could config these param in file:conf/aw2sql-conf.yml）
           $DataDir   => Directory where you store the awstats temp files
           $dbuser    => You must select a username
           $dbpass    => You must select a password
@@ -121,6 +124,7 @@ Changelog
 
         * 修改表结构，在一些清空表格的操作上，修改为删除当前year和month相同的数据，同时对于大部分的表增加一列year_month，同时修改一些表的key；
         * 对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
+        * 从配置文件中读取数据库配置信息；
         
 2018-09-24 zzq <191550636@qq.com>
 
