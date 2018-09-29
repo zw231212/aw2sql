@@ -6,10 +6,9 @@
 #  > Web   : https://github.com/zw231212/aw2sql
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-echo "aw2sql:=========================================="
+echo "aw2sql.sh:=========================================="
 
 #读取配置文件信息
-PREFIX=#
 while read line;do
   eval "$line"
 done < "conf/aw2sql.conf"
@@ -48,8 +47,20 @@ done
 #echo ${!ninfo[@]}
 echo "文件个数是："${#fileInfoArr[@]}
 fileStorageInfo=[]
+configs=[]
+confIndex=0
 for index in ${!fileInfoArr[@]};do
 	nthInfo=(${fileInfoArr[$index]})
-	echo ${nthInfo[@]}
+	##减去2是因为不包括最后的元素，同时下标是从0开始
+	end=$[${#nthInfo[@]}-2]
+	configArr=${nthInfo[@]:1:$end}
+	configName=${configArr// /.} #一开始我们以.来分割，这里便以.来join
+	if ! [[ "${configs[@]}" =~ $configName ]];then
+		configs[$confIndex]=$configName
+		confIndex=$[confIndex+1]
+	fi
 done
+
+
+
 
