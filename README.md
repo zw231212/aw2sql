@@ -27,13 +27,13 @@ Basic Usage
 
     dependencies:
     
-      (1)perl;
-      (2)mysql
-      (3)DBI
-      (4)Data-ShowTable
-      (5)DBD-mysql
-      #(6)YAML::XS(可以使用cpan intsall YAML:XS来安装)
-      at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
+          (1)perl;
+          (2)mysql
+          (3)DBI
+          (4)Data-ShowTable
+          (5)DBD-mysql
+          #(6)YAML::XS(可以使用cpan intsall YAML:XS来安装)
+          at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
      
     1st: Copy aw2sql.pl script to the awstats directory （not necessary）
     
