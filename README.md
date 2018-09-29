@@ -26,6 +26,7 @@ Basic Usage
 
 
     dependencies:
+    
       (1)perl;
       (2)mysql
       (3)DBI
@@ -37,6 +38,7 @@ Basic Usage
     1st: Copy aw2sql.pl script to the awstats directory （not necessary）
     
     2nd: Edit aw2sql.pl and change the values of:(changed) 
+    
           $DataDir   => Directory where you store the awstats temp files
           $dbuser    => You must select a username
           $dbpass    => You must select a password
@@ -64,6 +66,7 @@ Basic Usage
       (Note: improved，create database is no longer needed!)
     
     6th: Run the script
+    
         $ ./aw2sql.pl -config=mysite ## this would find the current(now) month and 
         current year's file!
 
