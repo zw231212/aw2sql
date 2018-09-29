@@ -1,8 +1,0 @@
-#基础的配置信息
-baseConfig :
-    DataDir : /opt/awstats/results/
-    dbuser  : root
-    dbpass : Tiger!2018
-    dbhost  : 10.2.16.3
-    dbport : 3306
-

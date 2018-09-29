@@ -30,7 +30,7 @@ no strict "refs";
 use DBI;
 use Getopt::Long;
 use Time::Local;
-use YAML::XS 'LoadFile';
+#use YAML::XS 'LoadFile';
 
 use vars qw/
     $VERSION $DIR $PROG $Extension $SiteConfig $DataDir $MonthConfig $YearConfig $help
@@ -42,9 +42,14 @@ use vars qw/
         %searchref %pageref %searchwords %searchkeywords %downloads %e400 %e403
         $year_month $dbport
 /;
+my $filename = "./conf/aw2sql.conf";
+#my $configInfo = LoadFile('./conf/aw2sql-conf.yml');
+#my $dbConfig = $configInfo->{'dbConfig'};
+my $dbConfig = ParseConfig($filename);
 
-my $configInfo = LoadFile('./conf/aw2sql-conf.yml');
-my $dbConfig = $configInfo->{'dbConfig'};
+while ((my $k, my $v) = each $dbConfig) {
+  print "$k => $v\n";
+}
 
 $DataDir=$dbConfig->{'DataDir'}; # <=== Directory where you store the awstats temp files
 $dbuser=$dbConfig->{'dbuser'};           # <=== You must select a username
@@ -63,6 +68,31 @@ $YearConfig=''; # If you want to save the info of a year
 #############
 # Functions #
 #############
+
+#------------------------------------------------------------------------------
+# Function:   read and parse config file
+# Parameters: filename
+# Input:    None
+# Output:   None
+# Return:   None
+#------------------------------------------------------------------------------
+sub ParseConfig
+{
+  my  %CONFIG;
+  open(CONF,"$_[0]") or die "Can't open $_[0] : $!";
+  while(<CONF>){
+    chomp($_);
+    $_ =~ s/\;(.*)//;
+    next if($_ eq '');
+    if($_ =~ /(.+)=(.+)/){
+      my  $key=$1; $key =~ s/^\s+//; $key=~ s/\s+$//;
+      my  $value=$2;$value =~ s/^\s+//;$value =~ s/\s+$//;
+      $CONFIG{$key}=$value;
+    }
+  }
+  return (\%CONFIG);
+}
+
 
 #------------------------------------------------------------------------------
 # Function:   Shows an error message and exits
