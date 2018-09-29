@@ -24,7 +24,8 @@
 
 require 5.005;
 use strict;
-#use warnings;
+
+use warnings;
 no strict "refs";
 use DBI;
 use Getopt::Long;
