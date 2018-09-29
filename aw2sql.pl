@@ -25,7 +25,7 @@
 require 5.005;
 use strict;
 
-use warnings;
+#use warnings;
 no strict "refs";
 use DBI;
 use Getopt::Long;
@@ -39,7 +39,7 @@ use vars qw/
         $dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
         %general %daily %hours %session %domain %os %unkos %browser %unkbrowser %ft
         %screen %misc %worms %robot %errors %e404 %visit %pages %origin
-        %searchref %pageref %searchwords %searchkeywords %downloads
+        %searchref %pageref %searchwords %searchkeywords %downloads %e400 %e403
         $year_month $dbport
 /;
 
@@ -436,6 +436,26 @@ sub Create_Table
         "`downloads` MEDIUMINT UNSIGNED NOT NULL , ".
         "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
         "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
+  }
+  elsif($_[0] eq "errors403")
+  {
+    $s = "CREATE TABLE  IF NOT EXISTS `errors403` ( ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`url` VARCHAR(256) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`referer` VARCHAR(256) NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
+  }
+  elsif($_[0] eq "errors400")
+  {
+    $s = "CREATE TABLE  IF NOT EXISTS `errors400` ( ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`url` VARCHAR(256) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`referer` VARCHAR(256) NOT NULL , ".
         "PRIMARY KEY ( `id` ) );";
   }
   $dbh->do($s);
@@ -879,6 +899,36 @@ sub Read_Downloads
   my $id = $_[0];
   ($downloads{'url'}, $downloads{'downloads'}, $downloads{'hits'}, $downloads{'bandwidth'}) = split(/ /, $data[$sec][$id]);
 }
+
+
+#------------------------------------------------------------------------------
+# Function:   Creates the data of the errors403 table
+# Parameters: The error id we want to read stats
+# Input:    @data
+# Output:   %e403
+# Return:   None
+#------------------------------------------------------------------------------
+sub Read_Errors403
+{
+  my $sec = Search_Sec("SIDER_403");
+  my $id = $_[0];
+  ($e403{'url'}, $e403{'hits'}, $e403{'referer'}) = split(/ /, $data[$sec][$id]);
+}
+
+#------------------------------------------------------------------------------
+# Function:   Creates the data of the errors400 table
+# Parameters: The error id we want to read stats
+# Input:    @data
+# Output:   %e400
+# Return:   None
+#------------------------------------------------------------------------------
+sub Read_Errors400
+{
+  my $sec = Search_Sec("SIDER_400");
+  my $id = $_[0];
+  ($e400{'url'}, $e400{'hits'}, $e400{'referer'}) = split(/ /, $data[$sec][$id]);
+}
+
 
 ########
 # Main #
@@ -1465,11 +1515,54 @@ $rows = $dbh->do("DELETE FROM `downloads` WHERE `year_month` = '".$year_month."'
 for (my $i=0; $i<$max; $i++)
 {
   Read_Downloads($i);
-  $sql = "INSERT INTO `downloads` SET `url`='".$downloads{'url'}."', `downloads`='".$downloads{'downloads'}."', ".
+  $sql = "INSERT INTO `downloads` SET `url`=?, `downloads`='".$downloads{'downloads'}."', ".
       " `hits`='".$downloads{'hits'}."', `bandwidth`='".$downloads{'bandwidth'}."', `year_month` = '".$year_month."';";
-  $rows = $dbh->do($sql);
+  my $downloadsPrepare = $dbh->prepare($sql);
+  $rows = $downloadsPrepare->execute($downloads{'url'});
   if(!$rows) { error("We can't add a new row to the 'downloads' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
+
+
+###################
+# Errors403 TABLE #
+###################
+
+# I don't think it's a good idea to include this table in the BD
+# Some of the errors can risk the security of the DB
+if(! Search_Table("errors403")) { Create_Table("errors403"); }
+my $max = $datanumelem[Search_Sec("SIDER_403")];
+$rows = $dbh->do("DELETE FROM `errors403` WHERE `year_month` = '".$year_month."';"); # Empty the table
+for (my $i=0; $i<$max; $i++)
+{
+  Read_Errors403($i);
+  $e403{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
+  $sql = "INSERT INTO `errors403` SET `url`=?, `hits`='".$e403{'hits'}."', ".
+      "`referer`='".$e403{'referer'}."', `year_month` = '".$year_month."';";
+  my $e403Prepare = $dbh->prepare($sql);
+  $rows = $e403Prepare->execute($e403{'url'});
+  if(!$rows) { error("We can't add a new row to the 'errors403' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+}
+
+###################
+# Errors400 TABLE #
+###################
+
+# I don't think it's a good idea to include this table in the BD
+# Some of the errors can risk the security of the DB
+if(! Search_Table("errors400")) { Create_Table("errors400"); }
+my $max = $datanumelem[Search_Sec("SIDER_400")];
+$rows = $dbh->do("DELETE FROM `errors400` WHERE `year_month` = '".$year_month."';"); # Empty the table
+for (my $i=0; $i<$max; $i++)
+{
+  Read_Errors400($i);
+  $e400{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
+  $sql = "INSERT INTO `errors400` SET `url`=?, `hits`='".$e400{'hits'}."', ".
+      "`referer`='".$e400{'referer'}."', `year_month` = '".$year_month."';";
+  my $e400Prepare = $dbh->prepare($sql);
+  $rows = $e400Prepare->execute($e400{'url'});
+  if(!$rows) { error("We can't add a new row to the 'errors400' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+}
+
 
 
 #$sth->finish();

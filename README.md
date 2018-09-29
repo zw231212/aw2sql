@@ -27,6 +27,8 @@ unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当�
 （7）增加从conf/aw2sql-conf.yml来读取数据库的配置文件的操作；增加对pages，unkos，unkbrowser这三
 表中字段的处理：长度限制以及对url，agent插入的时候进行预编译后执行插入的方式。
 
+（8）增加downloads表
+
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
@@ -115,6 +117,7 @@ Basic Usage
 （14）链接网站的方法：origin
 （15）用以搜索的短语和用以搜索的关键词：searchwords 和searchkeywords
 （16）HTTP错误码：errors对应总表，error404对应各自错误的页面
+（17）下载文档数据对应表：downloads；
 
 ```
 
@@ -127,7 +130,7 @@ Changelog
         * 对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
         * 从配置文件中读取数据库配置信息；
         * 增加对pages,unkos,unkbrowser三表的部门字段长度处理，以及url和agent字段进行预编译后执行处理；
-        
+        * 增加downloads表
 2018-09-24 zzq <191550636@qq.com>
 
         * 自动创建数据库；
