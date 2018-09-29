@@ -25,7 +25,7 @@ unkos和unkbrowser增加一列，同时修改清空表格的操作为删除当�
 （6）对于没有添加year_month的表进行添加，并修改部分表的key以及开始清空表的操作改为删除操作；
 
 （7）增加从conf/aw2sql-conf.yml来读取数据库的配置文件的操作；增加对pages，unkos，unkbrowser这三
-表中字段的处理。长度限制于url，agent插入的时候进行预编译后执行插入的方式。
+表中字段的处理：长度限制以及对url，agent插入的时候进行预编译后执行插入的方式。
 
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
