@@ -23,28 +23,32 @@
 #
 
 require 5.005;
-# use warnings;
-# use warnings FATAL => 'all';
+use strict;
+#use warnings;
+no strict "refs";
 use DBI;
 use Getopt::Long;
 use Time::Local;
-use strict;no strict "refs";
+use YAML::XS 'LoadFile';
 
 use vars qw/
-$VERSION $DIR $PROG $Extension $SiteConfig $DataDir $MonthConfig $YearConfig $help
-$nowsec $nowmin $nowhour $nowday $nowmonth $nowyear $nowwday $nowyday
-@data @dataname @datanumelem
-$dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
-%general %daily %hours %session %domain %os %unkos %browser %unkbrowser %ft
-%screen %misc %worms %robot %errors %e404 %visit %pages %origin
-%searchref %pageref %searchwords %searchkeywords $year_month
+    $VERSION $DIR $PROG $Extension $SiteConfig $DataDir $MonthConfig $YearConfig $help
+        $nowsec $nowmin $nowhour $nowday $nowmonth $nowyear $nowwday $nowyday
+        @data @dataname @datanumelem
+        $dsn $dbuser $dbpass $dbhost $dbh $sth $rows $sql @ary @tables
+        %general %daily %hours %session %domain %os %unkos %browser %unkbrowser %ft
+        %screen %misc %worms %robot %errors %e404 %visit %pages %origin
+        %searchref %pageref %searchwords %searchkeywords $year_month $dbport
 /;
 
-$DataDir='/opt/awstats/results/'; # <=== Directory where you store the awstats temp files
-$dbuser='root';           # <=== You must select a username
-$dbpass='Tiger!2018';         # <=== You must select a password
-$dbhost='10.2.16.3';      # <=== Where is the database?
-my $dbport='3306';
+my $configInfo = LoadFile('./conf/aw2sql-conf.yml');
+my $dbConfig = $configInfo->{'dbConfig'};
+
+$DataDir=$dbConfig->{'DataDir'}; # <=== Directory where you store the awstats temp files
+$dbuser=$dbConfig->{'dbuser'};           # <=== You must select a username
+$dbpass=$dbConfig->{'dbpass'};         # <=== You must select a password
+$dbhost=$dbConfig->{'dbhost'};      # <=== Where is the database?
+$dbport=$dbConfig->{'dbport'};
 
 $VERSION="0.1"; # Version of this script
 $DIR=''; # Path of this script
@@ -68,7 +72,7 @@ $YearConfig=''; # If you want to save the info of a year
 sub error
 {
   print "Error: $_[0]\n";
-    exit 1;
+  exit 1;
 }
 
 #------------------------------------------------------------------------------
@@ -189,237 +193,237 @@ sub Create_Table
   if($_[0] eq "general")
   {
     $s = "CREATE TABLE `general` ( ".
-           "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`visits_unique` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`pages_nv` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits_nv` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth_nv` BIGINT UNSIGNED NOT NULL , ".
-           "`hosts_known` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hosts_unknown` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month` ) );";
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`visits_unique` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`pages_nv` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits_nv` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth_nv` BIGINT UNSIGNED NOT NULL , ".
+        "`hosts_known` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hosts_unknown` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month` ) );";
   }
   elsif($_[0] eq "daily")
   {
     $s = "CREATE TABLE `daily` ( ".
-           "`day` VARCHAR( 64 ) NOT NULL , ".
-           "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `day` ) );";
+        "`day` VARCHAR( 64 ) NOT NULL , ".
+        "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `day` ) );";
   }
   elsif($_[0] eq "hours")
   {
     $s = "CREATE TABLE `hours` ( ".
-           "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`hour` TINYINT UNSIGNED NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month`, `hour` ) );";
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`hour` TINYINT UNSIGNED NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month`, `hour` ) );";
   }
   elsif($_[0] eq "session")
   {
     $s = "CREATE TABLE `session` ( ".
-          "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`range` VARCHAR(64) NOT NULL , ".
-           "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month`, `range` ) );";
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`range` VARCHAR(64) NOT NULL , ".
+        "`visits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month`, `range` ) );";
   }
   elsif($_[0] eq "domain")
   {
     $s = "CREATE TABLE `domain` ( ".
-           "`year_month` VARCHAR(16) NOT NULL , ".
-           "`code` VARCHAR(16) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month`, `code` ) );";
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`code` VARCHAR(16) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month`, `code` ) );";
   }
   elsif($_[0] eq "os")
   {
     $s = "CREATE TABLE `os` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
-           "`name` VARCHAR(64) NOT NULL , ".
-           "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) , INDEX (`name`) );";
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`name` VARCHAR(64) NOT NULL , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) , INDEX (`name`) );";
   }
   elsif($_[0] eq "unkos")
   {
     $s = "CREATE TABLE `unkos` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`agent` VARCHAR(255) NOT NULL , ".
-           "`lastvisit` VARCHAR(64) NOT NULL , ".
-           "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
+        "`agent` VARCHAR(255) NOT NULL , ".
+        "`lastvisit` VARCHAR(64) NOT NULL , ".
+        "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
   }
   elsif($_[0] eq "browser")
   {
     $s = "CREATE TABLE `browser` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
-           "`name` VARCHAR(64) NOT NULL , ".
-           "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) , INDEX (`name`) );";
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`name` VARCHAR(64) NOT NULL , ".
+        "`year_month` VARCHAR( 16 ) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) , INDEX (`name`) );";
   }
   elsif($_[0] eq "unkbrowser")
   {
     $s = "CREATE TABLE `unkbrowser` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`agent` VARCHAR(255) NOT NULL , ".
-           "`lastvisit` VARCHAR(64) NOT NULL , ".
-           "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
+        "`agent` VARCHAR(255) NOT NULL , ".
+        "`lastvisit` VARCHAR(64) NOT NULL , ".
+        "PRIMARY KEY ( `id` ) , INDEX (`agent`) );";
   }
   elsif($_[0] eq "filetypes")
   {
     $s = "CREATE TABLE `filetypes` ( ".
-           "`year_month` VARCHAR(16) NOT NULL , ".
-           "`type` VARCHAR(16) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`bwwithoutcompress` BIGINT UNSIGNED NOT NULL , ".
-           "`bwaftercompress` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month`, `type` ) );";
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`type` VARCHAR(16) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`bwwithoutcompress` BIGINT UNSIGNED NOT NULL , ".
+        "`bwaftercompress` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month`, `type` ) );";
   }
   elsif($_[0] eq "screen")
   {
     $s = "CREATE TABLE `screen` ( ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`size` VARCHAR(32) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `year_month`, `size` ) );";
+        "`size` VARCHAR(32) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `year_month`, `size` ) );";
   }
   elsif($_[0] eq "misc")
   {
     $s = "CREATE TABLE `misc` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`text` VARCHAR(128) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`text` VARCHAR(128) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "worms")
   {
     $s = "CREATE TABLE `worms` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`text` VARCHAR(128) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`lastvisit` VARCHAR(64) NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`text` VARCHAR(128) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`lastvisit` VARCHAR(64) NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "robot")
   {
     $s = "CREATE TABLE `robot` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
-           "`year_month` VARCHAR(16) NOT NULL , ".
-           "`name` VARCHAR(128) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`lastvisit` VARCHAR(64) NOT NULL , ".
-           "`hitsrobots` MEDIUMINT UNSIGNED NOT NULL, ".
-           "PRIMARY KEY ( `id` ) );";
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`name` VARCHAR(128) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`lastvisit` VARCHAR(64) NOT NULL , ".
+        "`hitsrobots` MEDIUMINT UNSIGNED NOT NULL, ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "errors")
   {
     $s = "CREATE TABLE `errors` ( ".
-           "`code` VARCHAR(16) NOT NULL , ".
+        "`code` VARCHAR(16) NOT NULL , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY (`year_month`, `code` ) );";
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY (`year_month`, `code` ) );";
   }
   elsif($_[0] eq "errors404")
   {
     $s = "CREATE TABLE `errors404` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
-            "`year_month` VARCHAR(16) NOT NULL , ".
-           "`url` VARCHAR(256) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`referer` VARCHAR(256) NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`year_month` VARCHAR(16) NOT NULL , ".
+        "`url` VARCHAR(256) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`referer` VARCHAR(256) NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "visitors")
   {
     $s = "CREATE TABLE `visitors` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
-           "`host` VARCHAR(255) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`lastvisit` VARCHAR(64) NOT NULL , ".
-           "`startlastvisit` VARCHAR(64) , ".
-           "`lastpage` VARCHAR(255) , ".
-           "PRIMARY KEY ( `id` ) , INDEX (`lastvisit`) );";
+        "`host` VARCHAR(255) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`lastvisit` VARCHAR(64) NOT NULL , ".
+        "`startlastvisit` VARCHAR(64) , ".
+        "`lastpage` VARCHAR(255) , ".
+        "PRIMARY KEY ( `id` ) , INDEX (`lastvisit`) );";
   }
   elsif($_[0] eq "pages")
   {
     $s = "CREATE TABLE `pages` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR(16) NOT NULL , ".
-           "`url` VARCHAR(255) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
-           "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
-           "`entry` MEDIUMINT UNSIGNED NOT NULL , ".
-           "`exit` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`url` VARCHAR(255) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
+        "`bandwidth` BIGINT UNSIGNED NOT NULL , ".
+        "`entry` MEDIUMINT UNSIGNED NOT NULL , ".
+        "`exit` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "origin")
   {
     $s = "CREATE TABLE `origin` ( ".
         "`year_month` VARCHAR(16) NOT NULL , ".
-           "`from` VARCHAR(64) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY (`year_month`, `from` ) );";
+        "`from` VARCHAR(64) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY (`year_month`, `from` ) );";
   }
   elsif($_[0] eq "searchref")
   {
     $s = "CREATE TABLE `searchref` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`engine` VARCHAR(128) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`engine` VARCHAR(128) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "pageref")
   {
     $s = "CREATE TABLE `pageref` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`url` VARCHAR(255) NOT NULL , ".
-           "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`url` VARCHAR(255) NOT NULL , ".
+        "`pages` MEDIUMINT UNSIGNED NOT NULL, ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "searchwords")
   {
     $s = "CREATE TABLE `searchwords` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`words` VARCHAR(255) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`words` VARCHAR(255) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
   elsif($_[0] eq "searchkeywords")
   {
     $s = "CREATE TABLE `searchkeywords` ( ".
-           "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
+        "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT , ".
         "`year_month` VARCHAR( 16 ) NOT NULL , ".
-           "`words` VARCHAR(255ll) NOT NULL , ".
-           "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
-           "PRIMARY KEY ( `id` ) );";
+        "`words` VARCHAR(255ll) NOT NULL , ".
+        "`hits` MEDIUMINT UNSIGNED NOT NULL , ".
+        "PRIMARY KEY ( `id` ) );";
   }
 
   $dbh->do($s);
@@ -463,7 +467,7 @@ sub Search_Elem
   {
     for ( my $z=0;$z<$num;$z++)
     {
-        if ($data[$sec][$z] =~ /^$elem([^&]+)/i) { return $z; }
+      if ($data[$sec][$z] =~ /^$elem([^&]+)/i) { return $z; }
     }
   }
   #warning("The element ".$elem." of section ".$_[0]." doesn't exists.");
@@ -869,8 +873,8 @@ if ($nowmin < 10) { $nowmin = "0$nowmin"; }
 if ($nowsec < 10) { $nowsec = "0$nowsec"; }
 
 GetOptions("config=s"=>\$SiteConfig,
-           "month=i"=>\$MonthConfig,
-           "year=i"=>\$YearConfig);
+    "month=i"=>\$MonthConfig,
+    "year=i"=>\$YearConfig);
 
 if (! $SiteConfig){
   print "\n";
@@ -924,7 +928,7 @@ Read_Data();  # Reads the temp data file of awstats
 $dsn = "DBI:mysql:database=".$SiteConfig."_log;host=".$dbhost;
 # Connect to the database
 $dbh = DBI->connect($dsn,$dbuser,$dbpass, {RaiseError => 0, PrintError => 0})
-  or error("Imposible conectar con el servidor: $DBI::err ($DBI::errstr)\n");
+    or error("Imposible conectar con el servidor: $DBI::err ($DBI::errstr)\n");
 
 # We ask for the existing tables and save them into the tables array
 $sth = $dbh->prepare("show tables");
@@ -944,11 +948,11 @@ my $count = $sth->fetchrow_array();
 $sth->finish();
 
 $sql = " `general` SET `year_month`='".$general{'year_month'}."', ".
-       " `visits`='".$general{'visits'}."', `visits_unique`='".$general{'visits_unique'}."', ".
-       " `pages`='".$general{'pages'}."', `hits`='".$general{'hits'}."', ".
-       " `bandwidth`='".$general{'bandwidth'}."', `pages_nv`='".$general{'pages_nv'}."', ".
-       " `hits_nv`='".$general{'hits_nv'}."', `bandwidth_nv`='".$general{'bandwidth_nv'}."', ".
-       " `hosts_known`='".$general{'hosts_known'}."', `hosts_unknown`='".$general{'hosts_unknown'}."'";
+    " `visits`='".$general{'visits'}."', `visits_unique`='".$general{'visits_unique'}."', ".
+    " `pages`='".$general{'pages'}."', `hits`='".$general{'hits'}."', ".
+    " `bandwidth`='".$general{'bandwidth'}."', `pages_nv`='".$general{'pages_nv'}."', ".
+    " `hits_nv`='".$general{'hits_nv'}."', `bandwidth_nv`='".$general{'bandwidth_nv'}."', ".
+    " `hosts_known`='".$general{'hosts_known'}."', `hosts_unknown`='".$general{'hosts_unknown'}."'";
 if($count==0) {  $sql = "INSERT INTO".$sql.";"; }
 elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month`='".$general{'year_month'}."' LIMIT 1;"; }
 else { error("There are repeated rows for the date ".$general{'year_month'}." into the 'general' table of ".$SiteConfig."\n"); }
@@ -975,8 +979,8 @@ for (my $i=1; $i<=$maxday; $i++)
   $sth->finish();
 
   $sql = " `daily` SET `day`='".$daily{'day'}."', `visits`='".$daily{'visits'}."', ".
-         " `pages`='".$daily{'pages'}."', `hits`='".$daily{'hits'}."', ".
-         " `bandwidth`='".$daily{'bandwidth'}."'";
+      " `pages`='".$daily{'pages'}."', `hits`='".$daily{'hits'}."', ".
+      " `bandwidth`='".$daily{'bandwidth'}."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
   elsif($count==1) { $sql = "UPDATE".$sql." WHERE `day`='".$daily{'day'}."' LIMIT 1;"; }
   else { error("There are repeated rows for the date ".$daily{'day'}." into the 'daily' table of ".$SiteConfig."\n"); }
@@ -998,7 +1002,7 @@ for (my $i=0; $i<=23; $i++)
   my $count = $sth->fetchrow_array();
   $sth->finish();
   $sql = " `hours` SET `hour`='".$hours{'hour'}."', `pages`='".$hours{'pages'}."', ".
-         " `hits`='".$hours{'hits'}."', `bandwidth`='".$hours{'bandwidth'}."', `year_month` = '".$year_month."'";
+      " `hits`='".$hours{'hits'}."', `bandwidth`='".$hours{'bandwidth'}."', `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
   elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month`='".$year_month."' AND `hour` = '".$i."'LIMIT 1;"; }
   else { error("There are repeated hours into the 'hours' table of ".$SiteConfig."\n"); }
@@ -1044,7 +1048,7 @@ for (my $i=0; $i<$max; $i++)
   $sth->finish();
 
   $sql = " `domain` SET `code`='".$domain{'code'}."', `pages`='".$domain{'pages'}."', ".
-         "`hits`='".$domain{'hits'}."', `bandwidth`='".$domain{'bandwidth'}."' , `year_month` = '".$year_month."'";
+      "`hits`='".$domain{'hits'}."', `bandwidth`='".$domain{'bandwidth'}."' , `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
   elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month` = '".$year_month."' AND `code`='".$domain{'code'}."' LIMIT 1;"; }
   else { error("There are repeated regional codes into the 'domain' table of ".$SiteConfig."\n"); }
@@ -1145,8 +1149,8 @@ for (my $i=0; $i<$max; $i++)
   $sth->finish();
 
   $sql = " `filetypes` SET `type`='".$ft{'type'}."', `hits`='".$ft{'hits'}."', ".
-         "`bandwidth`='".$ft{'bandwidth'}."', `bwwithoutcompress`='".$ft{'bwwithoutcompress'}."', ".
-         "`bwaftercompress`='".$ft{'bwaftercompress'}."', `year_month` = '".$year_month."'";
+      "`bandwidth`='".$ft{'bandwidth'}."', `bwwithoutcompress`='".$ft{'bwwithoutcompress'}."', ".
+      "`bwaftercompress`='".$ft{'bwaftercompress'}."', `year_month` = '".$year_month."'";
   if($count==0) { $sql = "INSERT INTO".$sql.";"; }
   elsif($count==1) { $sql = "UPDATE".$sql." WHERE `year_month`= '".$year_month."' AND  `type`='".$ft{'type'}."' LIMIT 1;"; }
   else { error("There are repeated file types into the 'filetypes' table of ".$SiteConfig."\n"); }
@@ -1188,7 +1192,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Misc($i);
   $sql = "INSERT INTO `misc` SET `text`='".$misc{'text'}."', `pages`='".$misc{'pages'}."', ".
-         " `hits`='".$misc{'hits'}."', `bandwidth`='".$misc{'bandwidth'}."', `year_month` = '".$year_month."';";
+      " `hits`='".$misc{'hits'}."', `bandwidth`='".$misc{'bandwidth'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'misc' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1204,7 +1208,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Misc($i);
   $sql = "INSERT INTO `worms` SET `text`='".$worms{'text'}."', `hits`='".$worms{'hits'}."', ".
-         "`bandwidth`='".$worms{'bandwidth'}."', `lastvisit`='".$worms{'lastvisit'}."', `year_month` = '".$year_month."';";
+      "`bandwidth`='".$worms{'bandwidth'}."', `lastvisit`='".$worms{'lastvisit'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'worms' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1220,8 +1224,8 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Robot($i);
   $sql = "INSERT INTO `robot` SET `name`='".$robot{'name'}."', `hits`='".$robot{'hits'}."', ".
-         "`bandwidth`='".$robot{'bandwidth'}."', `lastvisit`='".$robot{'lastvisit'}."', `year_month` = '".$year_month."', ".
-         "`hitsrobots`='".$robot{'hitsrobots'}."';";
+      "`bandwidth`='".$robot{'bandwidth'}."', `lastvisit`='".$robot{'lastvisit'}."', `year_month` = '".$year_month."', ".
+      "`hitsrobots`='".$robot{'hitsrobots'}."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'robot' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1237,7 +1241,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Errors($i);
   $sql = "INSERT INTO `errors` SET `code`='".$errors{'code'}."', `hits`='".$errors{'hits'}."', ".
-         "`bandwidth`='".$errors{'bandwidth'}."', `year_month` = '".$year_month."';";
+      "`bandwidth`='".$errors{'bandwidth'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'errors' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1256,7 +1260,7 @@ for (my $i=0; $i<$max; $i++)
   Read_Errors404($i);
   $e404{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
   $sql = "INSERT INTO `errors404` SET `url`='".$e404{'url'}."', `hits`='".$e404{'hits'}."', ".
-         "`referer`='".$e404{'referer'}."', `year_month` = '".$year_month."';";
+      "`referer`='".$e404{'referer'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new row to the 'errors404' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1273,8 +1277,8 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Visitors($i);
   $sql = "INSERT INTO `visitors` SET `host`='".$visit{'host'}."', `pages`='".$visit{'pages'}."', ".
-         "`hits`='".$visit{'hits'}."', `bandwidth`='".$visit{'bandwidth'}."', ".
-         "`lastvisit`='".$visit{'lastvisit'}."', `year_month` = '".$year_month."' ";
+      "`hits`='".$visit{'hits'}."', `bandwidth`='".$visit{'bandwidth'}."', ".
+      "`lastvisit`='".$visit{'lastvisit'}."', `year_month` = '".$year_month."' ";
   if(!($visit{'startlastvisit'} eq '')) { $sql = $sql . ", `startlastvisit`='".$visit{'startlastvisit'}."'"; }
   if(!($visit{'lastpage'} eq '')) { $sql = $sql . ", `lastpage`='".$visit{'lastpage'}."'";}
   $sql = $sql .";";
@@ -1295,7 +1299,7 @@ for (my $i=0; $i<$max; $i++)
   Read_Pages($i);
   my $urlInfo = $pages{'url'};
   if(!$urlInfo){
-	next;
+    next;
   }
   my $pagesNum = $pages{'pages'};
   $pagesNum = $pagesNum?$pagesNum:0;
@@ -1310,8 +1314,8 @@ for (my $i=0; $i<$max; $i++)
   $exitNum = $exitNum?$exitNum:0;
 
   $sql = "INSERT INTO `pages` SET `url`='".$pages{'url'}."', `pages`='$pagesNum', ".
-         "`bandwidth`='$bandWidthNum', `entry`='$entryNum', `year_month` = '".$year_month."'".
-         "`exit`='$exitNum';";
+      "`bandwidth`='$bandWidthNum', `entry`='$entryNum', `year_month` = '".$year_month."', ".
+      "`exit`='$exitNum';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'pages' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1335,7 +1339,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Origin($i);
   $sql = "INSERT INTO `origin` SET `from`='".$origin{'from'}."', `pages`='".$origin{'pages'}."', ".
-         "`hits`='".$origin{'hits'}."', `year_month` = '".$year_month."';";
+      "`hits`='".$origin{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'origin' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1351,7 +1355,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Searchref($i);
   $sql = "INSERT INTO `searchref` SET `engine`='".$searchref{'engine'}."', `pages`='".$searchref{'pages'}."', ".
-         "`hits`='".$searchref{'hits'}."',`year_month` = '".$year_month."';";
+      "`hits`='".$searchref{'hits'}."',`year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'searchref' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
@@ -1367,7 +1371,7 @@ for (my $i=0; $i<$max; $i++)
 {
   Read_Pageref($i);
   $sql = "INSERT INTO `pageref` SET `url`='".$pageref{'url'}."', `pages`='".$pageref{'pages'}."', ".
-         "`hits`='".$pageref{'hits'}."', `year_month` = '".$year_month."';";
+      "`hits`='".$pageref{'hits'}."', `year_month` = '".$year_month."';";
   $rows = $dbh->do($sql);
   if(!$rows) { error("We can't add a new entry to the 'pageref' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
 }
