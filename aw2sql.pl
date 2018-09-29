@@ -30,7 +30,6 @@ use DBI;
 use Getopt::Long;
 use Time::Local;
 use YAML::XS 'LoadFile';
-use Data::Dumper;
 
 use vars qw/
     $VERSION $DIR $PROG $Extension $SiteConfig $DataDir $MonthConfig $YearConfig $help
