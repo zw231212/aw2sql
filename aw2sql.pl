@@ -1313,7 +1313,7 @@ for (my $i=0; $i<$max; $i++)
   my $exitNum = $pages{'exit'};
   $exitNum = $exitNum?$exitNum:0;
 
-  $sql = "INSERT INTO `pages` SET `url`='".$pages{'url'}."', `pages`='$pagesNum', ".
+  $sql = "INSERT INTO `pages` SET `url`=\"".$pages{'url'}."\", `pages`='$pagesNum', ".
       "`bandwidth`='$bandWidthNum', `entry`='$entryNum', `year_month` = '".$year_month."', ".
       "`exit`='$exitNum';";
   $rows = $dbh->do($sql);
