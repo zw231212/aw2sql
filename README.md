@@ -2,7 +2,10 @@ Aw2Sql
 =====================  
 本项目起源：项目最初是想将awstats统计的结果（是txt文档）弄成一个api来服务，但是由于不懂的perl。
 故而找了这方面的一些资料，最终找到这个项目——能把结果数据解析到mysql数据库中去。但是运行的时候出现了一些问题；
-然后学习了一下perl，进行了一些初步的改动！
+然后学习了一下perl，进行了一些初步的改动。
+
+对于使用本项目生成多数据库的数据（每次新的config都生成新的数据库），可以结合另外一个系统[log-analytics](https://github.com/zw231212/log-analytics)
+来进行数据的维护，log-analytics提供根据每个从config来作为id查询数据库的数据。
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
