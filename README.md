@@ -24,7 +24,8 @@ Basic Usage
 
 *  Use aw2sql.pl: 
 
-
+    (do the dependency、2nd and then jump to the 6th!)
+    
     dependencies:
     
           (1)perl;
@@ -32,8 +33,7 @@ Basic Usage
           (3)DBI
           (4)Data-ShowTable
           (5)DBD-mysql
-          #(6)YAML::XS(可以使用cpan intsall YAML:XS来安装)
-          at this version,tested on :DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
+          at this version,tested on: DBI-1.601.tar.gz、Data-ShowTable-3.3.tar.gz、DBD-mysql-3.0007_1.tar.gz
      
     1st: Copy aw2sql.pl script to the awstats directory （not necessary）
     
@@ -50,20 +50,22 @@ Basic Usage
             $dbpass  = 'secret'
             $dbhost  = 'localhost'
 
-        last: you could config these param in file:conf/aw2sql.conf;
+        also: you could config these param in file:conf/aw2sql.conf;
         
     3rd: # chown root:root aw2sql.pl
 
     4th: # chmod 711 aw2sql.pl
 
-    5th: Create the database into MySQL. The default database is "mysite"_log.
-      What this means? If your site is www.mysite.com, and you have an awstats'
-      config file named: "awstats.mysite.conf", you will generate a temp file
-      with the name: "awstats022005.mysite.txt".
-      The numbers are month and year (022005 == february 2005).
-      You must create this database before running the script. In this version,
-      the script doesn't create the database.
-      (Note: improved，create database is no longer needed!)
+    5th: Create the database into MySQL.（not necessary）
+    
+        The default database is "mysite"_log.
+        What this means? If your site is www.mysite.com, and you have an awstats'
+        config file named: "awstats.mysite.conf", you will generate a temp file
+        with the name: "awstats022005.mysite.txt".
+        The numbers are month and year (022005 == february 2005).
+        You must create this database before running the script. In this version,
+        the script doesn't create the database.
+        (Note: this was improved，create database is no longer needed!)
     
     6th: Run the script
     
