@@ -6,8 +6,8 @@
 #  > Web   : https://github.com/zw231212/aw2sql
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-echo "========================================================"
-echo "aw2sql.sh基本输出:"
+echo "#######################################"
+echo "# aw2sql.sh基本输出:"
 
 #读取配置文件信息
 while read line;do
@@ -15,14 +15,14 @@ while read line;do
 done < "conf/aw2sql.conf"
 
 #打印配置文件的信息
-echo "awstats results data dir: $DataDir"
-echo "=database infomation: "
-echo "host: $dbhost"
-echo "port: $dbport"
-echo "user: $dbuser"
-echo "pass: $dbpass"
-echo "logSuffix: $logSuffix"
-echo "------------------------------------------------------"
+echo "# awstats results data dir: $DataDir"
+echo "# db infomation: "
+echo "# host: $dbhost"
+echo "# port: $dbport"
+echo "# user: $dbuser"
+echo "# pass: $dbpass"
+echo "# logSuffix: $logSuffix"
+echo "######################################"
 #查看awstats结果文件目录是否存在,以及检查是否存在文件
 fileNums=$(ls $DataDir | wc -l)
 if [ ! -d $DataDir -o $fileNums -le 0 ];then
@@ -32,6 +32,7 @@ fi
 
 declare -A logsDateDic
 declare -A logsNumDic
+declare -a fileStorageInfo
 logsDateDic=()
 logsNumDic=()
 #############
@@ -45,7 +46,7 @@ logsNumDic=()
 #return: None
 #====================================
 hput() {
-    eval "$1"["$2"]="$3"
+    eval "$1"["$2"]='$3'
 }
 
 #====================================
@@ -89,6 +90,8 @@ function getFnumsAndConfigs(){
 		ftempConfig="${info[$nextIndex]}"
 		hput $3 $ftempConfig $ftempNum
 	done
+	#进行资源释放
+	unset info lindex ftempNum nextIndex ftempCinfig
 }
 
 #=====================================
@@ -98,27 +101,34 @@ function getFnumsAndConfigs(){
 #return: None
 #=====================================
 function getConfigsLogInfo(){
-	info=($(ls $1 | cut -c 8- |sort -n | sed "s/.$2//" |uniq))
+    ##结果是逆序的，靠参数sort -rn来实现
+	info=($(ls $1 | cut -c 8- | sed "s/.$2/ /" |sort -rn | uniq))
 	for fname in ${info[@]};do
-	   logDate=${fname:0:6}
+	   logMonth=${fname:0:2}
+	   logYear=${fname:2:4}
+	   logDate=$logYear$logMonth
 	   logConfig=${fname#*.}
-	   res=`hget $3 $logConfig`
-	   if [ -z "${res[@]}" ];then
+	   res=`hget logsDateDic "$logConfig"`
+	   if [ -z "${res[*]}" ];then
 		resTemp=("$logDate")
-		echo "不包含$logConfig 返回空！$logDate"
+		echo "不包含key：$logConfig 返回空，初始时间是：$logDate"
 	   else
-		resTemp=("${res[*]}" "$logDate")
-		echo "包含$logConfig,日期为：$logDate 不返回空！"${resTemp[@]}
+		resTemp=("${res[@]}" "$logDate")
+#		echo "包含$logConfig,日期为：$logDate 不返回空！"${resTemp[@]}
 	   fi
-	   hput $3 $logConfig "${resTemp[@]}"
-	   res=`hget $3 $logConfig`
-	   info1=($res)
-	   echo $info1
-	   echo ${res[@]}
-	done
+	   logsDateDic[$logConfig]="${resTemp[*]}"
+    done
 }
 
 
+function fileStorageInfo(){
+    confKeys=${!logsNumDic[@]}
+    for ckey in ${confKeys[@]};do
+        echo $ckey
+        echo ${logsNumDic[$ckey]}
+        echo ${logsDateDic[$ckey]}
+    done
+}
 function mergeInfo(){
 	echo "merge info!"
 }
@@ -157,7 +167,7 @@ echo "文件个数是："${#fileInfoArr[@]}
 CURRENTDATE=$(date +%Y-%m-%d)
 UPDATETIME=$(date "+%Y-%m-%d %H:%M:%S")
 
-fileStorageInfo=[]
+
 configs=[]
 confIndex=0
 
@@ -188,6 +198,6 @@ getFnumsAndConfigs $DataDir $logSuffix logsNumDic
 #获取文件config名称和日志日期信息
 getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 
-echo ${logsDateDic["kejsoqixiang"]}
-shareLogs=(`hget logsDateDic "kejsoqixiang"`)
-echo ${#shareLogs[@]}
+# 配置文件信息
+fileStorageInfo
+
