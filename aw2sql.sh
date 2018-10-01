@@ -32,7 +32,9 @@ fi
 
 declare -A logsDateDic
 declare -A logsNumDic
-declare -a fileStorageInfo
+declare -A versionsDic
+declare -a statisticArr
+declare -a datesArr
 logsDateDic=()
 logsNumDic=()
 #############
@@ -59,27 +61,21 @@ hget() {
 	eval echo '${'"$1[$2]"'#hash}'
 }
 
+#====================================
+#fuc name: sortArr
+#descr: 对数组进行排序
+#param: 输入第一个是数组，第二个是排序参数
+#return: None
+#=====================================
 function sortArr(){
-    echo "排序"
-    ARRAY=($1);
-    LENGTH=${#ARRAY[@]}
-    echo ${ARRAY[@]}
-    I=0
-    for((; I<LENGTH; I++)){
-      for((j=I+1; j<LENGTH; j++)){
-
-        if [[ ${ARRAY[I]} -gt ${ARRAY[J]} ]]
-        then
-          temp=${ARRAY[I]}
-          ARRAY[I]=${ARRAY[J]}
-          ARRAY[J]=$temp
-        fi
-
-      }
-    }
-
-    echo ${ARRAY[@]}
-    unset ARRAY I J LENGTH temp
+    ARRAY=($1)
+    SortedArray=($(
+    for val in ${ARRAY[@]};do
+	echo "$val"
+    done | sort $2
+    ))
+    echo "${SortedArray[*]}"
+    unset ARRAY SortedArray
 }
 
 #=====================================
@@ -109,7 +105,7 @@ function getFnumsAndConfigs(){
 			continue
 		fi
 		ftempNum=${info[$lindex]}
-		nextIndex=$lindex+1
+		nextIndex=$[lindex+1]
 		ftempConfig="${info[$nextIndex]}"
 		hput $3 $ftempConfig $ftempNum
 	done
@@ -141,24 +137,64 @@ function getConfigsLogInfo(){
 	   fi
 	   logsDateDic[$logConfig]="${resTemp[*]}"
     done
+    ##对结果数组进行排序
     for ckey in ${!logsDateDic[@]};do
         dateArr=(${logsDateDic[$ckey]})
-        sortArr "${dateArr[@]}"
-        logsDateDic[$logConfig]="${dateArr[*]}"
+        sortedArr=`sortArr "${dateArr[*]}" -r`
+        logsDateDic[$ckey]="${sortedArr[*]}"
     done
     #进行资源释放
-	unset info fname logMonth logYear logDate logConfig resTemp res
+    unset ckey sortedArr
+    unset info fname logMonth logYear logDate logConfig resTemp res
 }
 
-
+#=====================================
+#fuc name: fileStorageInfo
+#descr: 将目标目录下的日志的信息存储到文件里面，日志文件
+#param: None
+#return: None
+#=====================================
 function fileStorageInfo(){
-    confKeys=${!logsNumDic[@]}
-    for ckey in ${confKeys[@]};do
-        echo "store"
-        #echo $ckey
-        #echo ${logsNumDic[$ckey]}
-        #echo ${logsDateDic[$ckey]}
+    confKeys=(${!logsNumDic[@]})
+    CURRENTDATE=$(date +%Y-%m-%d)
+    UPDATETIME=$(date "+%Y-%m-%d-%H-%M-%S")
+    ##文件名
+    CONFILE="./conf/logs-configs.txt"
+    DATEFILE="./conf/logs-dates.txt"
+
+    ##文件描述
+    CONFIGFILEDESCR="# 分别记录config名称，createDate表示创建日期，lastUpdateTime最后更新时间，lastLogTime 表示最后的日志日期 ，fnum表示文件数量，version更新的次数version"
+    LOGDATEDESCR="# 记录config名称和日志的日期XXXX-XX，年份+月份"
+
+    ##获取config 与version信息
+    versions=($(cat ./conf/logs-configs.txt| grep -v '#' | awk -F ' ' '{print $1,$NF}'))
+    #组成version字典
+
+    for vindex in ${!versions[@]};do
+		if [ $[vindex % 2] == 0 ];then
+			continue
+		fi
+		vsion=${versions[$vindex]}
+		formerIndex=$[vindex-1]
+		vconfig="${versions[formerIndex]}"
+		hput versionsDic $vconfig $vsion
     done
+    ##输入描述
+    echo $CONFIGFILEDESCR >  $CONFILE
+    echo $LOGDATEDESCR >  $DATEFILE
+    for cindex in ${!confKeys[@]};do
+       ckey=${confKeys[$cindex]}
+       rversion=$[${versionsDic[$ckey]}+1]
+       logsDates=(${logsDateDic[$ckey]})
+       sinfo=$ckey" "$CURRENTDATE" "$UPDATETIME" "${logsDates[0]}" "${logsNumDic[$ckey]}" "$rversion
+       linfo=$ckey":""${logsDates[@]}"
+       echo "$sinfo" >> $CONFILE
+       echo "$linfo" >> $DATEFILE
+       statisticArr[$cindex]=$sinfo
+       datesArr[$cindex]=$linfo
+    done
+    unset confKeys CURRENTDATE UPDATETIME CONFILE DATEFILE ckey logDates
+    unset sinfo linfo vindex versions vsion formerIndex vconfig
 }
 function mergeInfo(){
 	echo "merge info!"
@@ -231,4 +267,3 @@ getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 
 # 配置文件信息
 fileStorageInfo
-
