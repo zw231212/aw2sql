@@ -59,6 +59,29 @@ hget() {
 	eval echo '${'"$1[$2]"'#hash}'
 }
 
+function sortArr(){
+    echo "排序"
+    ARRAY=($1);
+    LENGTH=${#ARRAY[@]}
+    echo ${ARRAY[@]}
+    I=0
+    for((; I<LENGTH; I++)){
+      for((j=I+1; j<LENGTH; j++)){
+
+        if [[ ${ARRAY[I]} -gt ${ARRAY[J]} ]]
+        then
+          temp=${ARRAY[I]}
+          ARRAY[I]=${ARRAY[J]}
+          ARRAY[J]=$temp
+        fi
+
+      }
+    }
+
+    echo ${ARRAY[@]}
+    unset ARRAY I J LENGTH temp
+}
+
 #=====================================
 #fuc name: getFlogNum
 #descr: 根据config名称来获取日志文件数量，如果一个config的配置包含在另外一个config中，那么统计的数量会有错误；
@@ -118,15 +141,23 @@ function getConfigsLogInfo(){
 	   fi
 	   logsDateDic[$logConfig]="${resTemp[*]}"
     done
+    for ckey in ${!logsDateDic[@]};do
+        dateArr=(${logsDateDic[$ckey]})
+        sortArr "${dateArr[@]}"
+        logsDateDic[$logConfig]="${dateArr[*]}"
+    done
+    #进行资源释放
+	unset info fname logMonth logYear logDate logConfig resTemp res
 }
 
 
 function fileStorageInfo(){
     confKeys=${!logsNumDic[@]}
     for ckey in ${confKeys[@]};do
-        echo $ckey
-        echo ${logsNumDic[$ckey]}
-        echo ${logsDateDic[$ckey]}
+        echo "store"
+        #echo $ckey
+        #echo ${logsNumDic[$ckey]}
+        #echo ${logsDateDic[$ckey]}
     done
 }
 function mergeInfo(){
