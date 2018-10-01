@@ -34,7 +34,6 @@ declare -A logsDateDic
 declare -A logsNumDic
 declare -A versionsDic
 declare -A createDatesDic
-declare -A parseInfo
 declare -a statisticArr
 declare -a datesArr
 logsDateDic=()
@@ -222,7 +221,6 @@ function fileStorageInfo(){
     unset confKeys CURRENTDATE UPDATETIME CONFILE DATEFILE ckey logDates
     unset sinfo linfo vindex versions vsion formerIndex vconfig
 }
-
 function mergeInfo(){
 	echo "merge info!"
 }
@@ -232,53 +230,65 @@ function initLogConfigs(){
 	echo "init log configs!"
 }
 
-function handleLastDatelog(){
-	##读取最后日志解析的时间
-	parseInfo < './conf/last-date.log'
-
-	#不存在，也就是初始化的时候,从最后一个日志生成
-	if [ -z "${parseInfo[@]}" ];then
-		confs=${!logsNumDic[@]}
-		for conf in ${confs[@]};do
-		    logDateArr=(${logsDateDic[$conf]})
-		    LEN=${#logDateArr[@]}
-		    parseInfo[$conf]=${logDateArr[$[LEN-1]]}
-		done
-	fi
-
-}
-
 
 
 ########
 # MAIN #
 ########
 
+fileInfoArr=[]
+#获取全部的文件,一定要有外面的括号
+files=($(ls $DataDir))
+
+
+#=====================================
+#文件名格式：awstats122017.share.com.txt
+#也就是awstats+月份+年份+config.txt
+#其中前面的是固定的，也就是月份不足2位的由0补足，然后和最后txt中间的就是config的名称；
+#====================================
+for index in ${!files[@]}; do
+	filename=${files[$index]}
+	#转换为数组
+	info=(${filename//./ })
+	fileInfoArr[$index]=${info[@]}
+done
+
+echo "文件个数是："${#fileInfoArr[@]}
+
+#获取当前日期和时间
+CURRENTDATE=$(date +%Y-%m-%d)
+UPDATETIME=$(date "+%Y-%m-%d %H:%M:%S")
+
+
+configs=[]
+confIndex=0
+
+
+for index in ${!fileInfoArr[@]};do
+	nthInfo=(${fileInfoArr[$index]})
+	##减去2是因为不包括最后的元素，同时下标是从0开始
+	end=$[${#nthInfo[@]}-2]
+	configArr=${nthInfo[@]:1:$end}
+	configName=${configArr// /.} #一开始我们以.来分割，这里便以.来join
+	if ! [[ "${configs[@]}" =~ $configName ]];then
+		configs[$confIndex]=$configName
+		confIndex=$[confIndex+1]
+	fi
+done
+#echo ${configs[@]}
+
+for config in ${configs[@]};do
+	getFlogNum $DataDir $config $logSuffix
+	result=$?
+	#logsNumDic[$config]=$result
+done
+#echo ${!logsNumDic[@]}
+#echo ${logsNumDic[@]}
+
 #获取文件config名称和文件数量
 getFnumsAndConfigs $DataDir $logSuffix logsNumDic
 #获取文件config名称和日志日期信息
 getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 
-# 配置文件信息生成
+# 配置文件信息
 fileStorageInfo
-
-#获取config信息以及最后解析的日志时间
-handleLastDatelog
-
-#获取
-confs=(${!logsDateDic[@]})
-echo ${confs[@]}
-for mconf in ${confs[@]};do
-	logDates=("${logsDateDic[$mconf]}")
-	for logDate in ${logDates[@]};do
-		year=${logDate:0:4}
-		month=${logDate:4:2}
-		echo $mconf">>"$month">>"$year
-		result=$(./aw2sql.pl -config=$mconf -year=$year -month=$month)
-		echo $result
-		if [  $result -eq 0 ];then
-			echo "发生异常，$result"
-			break;
-		fi;
-	done
-done

@@ -47,9 +47,9 @@ my $filename = "./conf/aw2sql.conf";
 #my $dbConfig = $configInfo->{'dbConfig'};
 my $dbConfig = ParseConfig($filename);
 
-while ((my $k, my $v) = each $dbConfig) {
-  print "$k => $v\n";
-}
+#while ((my $k, my $v) = each $dbConfig) {
+#  print "$k => $v\n";
+#}
 
 $DataDir=$dbConfig->{'DataDir'}; # <=== Directory where you store the awstats temp files
 $dbuser=$dbConfig->{'dbuser'};           # <=== You must select a username
