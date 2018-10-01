@@ -48,7 +48,7 @@ my $filename = "./conf/aw2sql.conf";
 my $dbConfig = ParseConfig($filename);
 
 #while ((my $k, my $v) = each $dbConfig) {
-#  print "$k => $v\n";
+#    print "$k => $v\n";
 #}
 
 $DataDir=$dbConfig->{'DataDir'}; # <=== Directory where you store the awstats temp files
@@ -508,7 +508,7 @@ sub Search_Sec
       if ($dataname[$x] eq $_[0]) { return $x; }
     }
   }
-  warning("The section ".$_[0]." can't be found");
+  #warning("The section ".$_[0]." can't be found");
   return -1;
 }
 
@@ -1561,17 +1561,20 @@ for (my $i=0; $i<$max; $i++)
 # Some of the errors can risk the security of the DB
 if(! Search_Table("errors403")) { Create_Table("errors403"); }
 my $max = $datanumelem[Search_Sec("SIDER_403")];
-$rows = $dbh->do("DELETE FROM `errors403` WHERE `year_month` = '".$year_month."';"); # Empty the table
-for (my $i=0; $i<$max; $i++)
-{
-  Read_Errors403($i);
-  $e403{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
-  $sql = "INSERT INTO `errors403` SET `url`=?, `hits`='".$e403{'hits'}."', ".
-      "`referer`='".$e403{'referer'}."', `year_month` = '".$year_month."';";
-  my $e403Prepare = $dbh->prepare($sql);
-  $rows = $e403Prepare->execute($e403{'url'});
-  if(!$rows) { error("We can't add a new row to the 'errors403' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+if ($max > 0) {
+  $rows = $dbh->do("DELETE FROM `errors403` WHERE `year_month` = '".$year_month."';"); # Empty the table
+  for (my $i=0; $i<$max; $i++)
+  {
+    Read_Errors403($i);
+    $e403{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
+    $sql = "INSERT INTO `errors403` SET `url`=?, `hits`='".$e403{'hits'}."', ".
+        "`referer`='".$e403{'referer'}."', `year_month` = '".$year_month."';";
+    my $e403Prepare = $dbh->prepare($sql);
+    $rows = $e403Prepare->execute($e403{'url'});
+    if(!$rows) { error("We can't add a new row to the 'errors403' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+  }
 }
+
 
 ###################
 # Errors400 TABLE #
@@ -1581,17 +1584,20 @@ for (my $i=0; $i<$max; $i++)
 # Some of the errors can risk the security of the DB
 if(! Search_Table("errors400")) { Create_Table("errors400"); }
 my $max = $datanumelem[Search_Sec("SIDER_400")];
-$rows = $dbh->do("DELETE FROM `errors400` WHERE `year_month` = '".$year_month."';"); # Empty the table
-for (my $i=0; $i<$max; $i++)
-{
-  Read_Errors400($i);
-  $e400{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
-  $sql = "INSERT INTO `errors400` SET `url`=?, `hits`='".$e400{'hits'}."', ".
-      "`referer`='".$e400{'referer'}."', `year_month` = '".$year_month."';";
-  my $e400Prepare = $dbh->prepare($sql);
-  $rows = $e400Prepare->execute($e400{'url'});
-  if(!$rows) { error("We can't add a new row to the 'errors400' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+if($max > 0){
+  $rows = $dbh->do("DELETE FROM `errors400` WHERE `year_month` = '".$year_month."';"); # Empty the table
+  for (my $i=0; $i<$max; $i++)
+  {
+    Read_Errors400($i);
+    $e400{'url'} =~ tr/'/&#039;/; # we subs the incorrect character ' with its html code
+    $sql = "INSERT INTO `errors400` SET `url`=?, `hits`='".$e400{'hits'}."', ".
+        "`referer`='".$e400{'referer'}."', `year_month` = '".$year_month."';";
+    my $e400Prepare = $dbh->prepare($sql);
+    $rows = $e400Prepare->execute($e400{'url'});
+    if(!$rows) { error("We can't add a new row to the 'errors400' table in the ".$SiteConfig."_log database.\n $DBI::err ($DBI::errstr)"); }
+  }
 }
+
 
 
 

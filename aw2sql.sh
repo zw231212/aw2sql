@@ -274,9 +274,9 @@ for mconf in ${confs[@]};do
 		year=${logDate:0:4}
 		month=${logDate:4:2}
 		echo $mconf">>"$month">>"$year
-		result=$(./aw2sql.pl -config=$mconf -year=$year -month=$month)
+		result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))
 		echo $result
-		if [  $result -eq 0 ];then
+		if [  "$result" = "0" ];then
 			echo "发生异常，$result"
 			break;
 		fi;
