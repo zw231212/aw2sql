@@ -33,6 +33,7 @@ fi
 declare -A logsDateDic
 declare -A logsNumDic
 declare -A versionsDic
+declare -A createDatesDic
 declare -a statisticArr
 declare -a datesArr
 logsDateDic=()
@@ -179,14 +180,38 @@ function fileStorageInfo(){
 		vconfig="${versions[formerIndex]}"
 		hput versionsDic $vconfig $vsion
     done
+
+    ##获取config 与createDate信息
+    createDates=($(cat ./conf/logs-configs.txt| grep -v '#' | awk -F ' ' '{print $1,$2}'))
+    #组成createDates字典
+
+    for cindex in ${!createDates[@]};do
+		if [ $[cindex % 2] == 0 ];then
+			continue
+		fi
+		cdate=${createDates[$cindex]}
+		if [ -z "$cdate" ];then
+		   cdate=$CURRENTDATE
+		fi
+		cformerIndex=$[cindex-1]
+		cconfig="${createDates[cformerIndex]}"
+		hput createDatesDic $cconfig $cdate
+    done
+
     ##输入描述
     echo $CONFIGFILEDESCR >  $CONFILE
     echo $LOGDATEDESCR >  $DATEFILE
+
+    ##遍历将一些统计和日志的信息写入文件里面
     for cindex in ${!confKeys[@]};do
        ckey=${confKeys[$cindex]}
        rversion=$[${versionsDic[$ckey]}+1]
        logsDates=(${logsDateDic[$ckey]})
-       sinfo=$ckey" "$CURRENTDATE" "$UPDATETIME" "${logsDates[0]}" "${logsNumDic[$ckey]}" "$rversion
+       ccdate=${createDatesDic[$ckey]}
+       if [ -z "$ccdate" ];then
+		ccdate=$CURRENTDATE
+       fi
+       sinfo=$ckey" "$ccdate" "$UPDATETIME" "${logsDates[0]}" "${logsNumDic[$ckey]}" "$rversion
        linfo=$ckey":""${logsDates[@]}"
        echo "$sinfo" >> $CONFILE
        echo "$linfo" >> $DATEFILE
