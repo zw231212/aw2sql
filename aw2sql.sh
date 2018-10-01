@@ -234,18 +234,29 @@ function initLogConfigs(){
 
 function handleLastDatelog(){
 	##读取最后日志解析的时间
-	parseInfo < './conf/last-date.log'
-
+	pinfo=($(cat $1 | grep -v '#' | awk -F ' ' '{print $1,$2}'))
+	echo ${pinfo[@]}
 	#不存在，也就是初始化的时候,从最后一个日志生成
-	if [ -z "${parseInfo[@]}" ];then
+	if [ -z "${pinfo[*]}" ];then
+		echo "不存在最后日期配置文件"
 		confs=${!logsNumDic[@]}
 		for conf in ${confs[@]};do
 		    logDateArr=(${logsDateDic[$conf]})
 		    LEN=${#logDateArr[@]}
 		    parseInfo[$conf]=${logDateArr[$[LEN-1]]}
 		done
+	else
+		echo "存在配置文件！"
+		for pindex in ${!pinfo[@]};do
+			if [ $[pindex % 2] == 0 ];then
+				continue
+			fi
+			pdate=${pinfo[$pindex]}
+			formerIndex=$[pindex-1]
+			pconfig="${pinfo[formerIndex]}"
+			hput parseInfo $pconfig $pdate
+		done
 	fi
-
 }
 
 
@@ -262,23 +273,41 @@ getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 # 配置文件信息生成
 fileStorageInfo
 
-#获取config信息以及最后解析的日志时间
-handleLastDatelog
 
 #获取
+LASTLOGFILE="./conf/last-date.log"
+
+#获取config信息以及最后解析的日志时间
+handleLastDatelog $LASTLOGFILE
+
+echo "#最后解析记录日期文件信息" > $LASTLOGFILE
+
 confs=(${!logsDateDic[@]})
-echo ${confs[@]}
 for mconf in ${confs[@]};do
-	logDates=("${logsDateDic[$mconf]}")
+	logDates=(${logsDateDic[$mconf]})
+	LogLENTH=${#logDates[@]}
+	lastDate=${parseInfo[$mconf]}
+	##检查是否为空
+	if [ -z "$lastDate" ];then
+		lastDate=0
+	fi
 	for logDate in ${logDates[@]};do
+		echo $logDate":"$lastDate
+		if [ $logDate -lt $lastDate ];then
+			echo "小于最小日期，不执行！"
+			continue
+		fi
 		year=${logDate:0:4}
 		month=${logDate:4:2}
 		echo $mconf">>"$month">>"$year
-		result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))
-		echo $result
-		if [  "$result" = "0" ];then
-			echo "发生异常，$result"
-			break;
-		fi;
+		#result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))
+		#echo $result
+		#if [  "$result" = "0" ];then
+			#echo "发生异常，$result"
+			#break;
+		#fi;
 	done
+	parseInfo[$mconf]=${logDates[0]}
+	echo $mconf" "${parseInfo[$mconf]} >> $LASTLOGFILE
 done
+
