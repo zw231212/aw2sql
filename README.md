@@ -81,6 +81,8 @@ Basic Usage
     Note: You only can use awstats temp files with text format, don't use
      the xml format!!
      
+    Related Projects: [log-analytics](https://github.com/zw231212/log-analytics)
+     
 
 * Use aw2sql.sh
         
@@ -96,7 +98,8 @@ Basic Usage
       每次自动运行这个文件即可对目标目录下的全部config进行执行，现在对应的执行命令那行是注释掉的
       （#result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))），最后加上定时执行任务的话
       那么就不用管日志解析结果了，只需要让别人上传日志解析结果文件到执行目录即可，如果需要查看统计信息，
-      去读取conf下面的几个文件即可
+      去读取conf下面的几个文件即可。
+      
 
 * Use aw2sql-1db.pl
 
@@ -110,6 +113,8 @@ Basic Usage
   pages ：网页数；
   hits ：文件数；
   bandwidth ：字节数；
+  year_month: 年份和月份；
+  config:解析结果的config；（在数据都存储到同一个数据库的时候有用！）
  
   * 摘要数据、按月历史统计数据和主机（相关的数据统计数据）对应表：general ；
   * 按日期统计数据对应表：daily
