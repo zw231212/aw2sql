@@ -30,15 +30,31 @@ if [ ! -d $DataDir -o $fileNums -le 0 ];then
 	exit 0
 fi
 
+#一些参数声明
 declare -A logsDateDic
 declare -A logsNumDic
 declare -A versionsDic
 declare -A createDatesDic
 declare -A parseInfo
+##下面这两个貌似没怎么用到
 declare -a statisticArr
 declare -a datesArr
 logsDateDic=()
 logsNumDic=()
+##文件名，分别是config相关的操作记录信息 日志的日期信息 以及最后入库的日志的结果日志日期
+CONFILE="./conf/logs-configs.txt"
+DATEFILE="./conf/logs-dates.txt"
+LASTLOGFILE="./conf/logs-last-date.txt"
+
+##文件描述
+CONFIGFILEDESCR="# 记录信息为config createDate lastUpdateTime lastLogDate fnum version ，分别记录config名称，createDate表示创建日期，lastUpdateTime最后更新时间，lastLogTime 表示最后的日志日期 ，fnum表示文件数量，version更新的次数version"
+LOGDATEDESCR="# 记录config名称和解析日志结果文件的日期XXXX-XX，日期格式是年份+月份(与在解析结果里面是XX-XXXX，为了排序方便进行了这样的转换)"
+LASTLOGDESCR="# 每个config最后解析记录信息的日期，也就是上一次解析到了哪里"
+
+CURRENTDATE=$(date +%Y-%m-%d)
+UPDATETIME=$(date "+%Y-%m-%d-%H-%M-%S")
+
+
 #############
 # FUNCTIONS #
 #############
@@ -66,53 +82,69 @@ hget() {
 #====================================
 #fuc name: sortArr
 #descr: 对数组进行排序
-#param: 输入第一个是数组，第二个是排序参数
+#param: 输入第一个是带排序的数组，第二个是排序参数，没有就顺序，有就逆序，比如-r
 #return: None
 #=====================================
 function sortArr(){
-    ARRAY=($1)
-    SortedArray=($(
-    for val in ${ARRAY[@]};do
-	echo "$val"
+    array=($1)
+    sortedArray=($(
+    for val in ${array[@]};do
+	    echo "$val"
     done | sort $2
     ))
-    echo "${SortedArray[*]}"
-    unset ARRAY SortedArray
+    echo "${sortedArray[*]}"
+    unset array sortedArray  val
 }
 
 #=====================================
 #fuc name: getFlogNum
 #descr: 根据config名称来获取日志文件数量，如果一个config的配置包含在另外一个config中，那么统计的数量会有错误；
-#如果在config后面再添加文件的后缀了这样就会不好不一样了?这里的结果有数量限制。
+#如果在config后面再添加文件的后缀了这样就会不好不一样了?这里的结果有数量限制。结果数量大于255的话，使用另外的形式
+# 获取解析结果，而不要读取result
 #param: 输入第一个是目标目录的地址，第二个是config的名称 第三个是文件的后缀名
 #return: 返回符合条件的日志的个数
 #=====================================
 function getFlogNum(){
 	fnum=$(ls $1 | grep "$2.$3" | wc -l)
+	echo "$fnum"
 	return $fnum
 }
 
 #=====================================
+#fuc name: result2Dic
+#descr: 将命令行的结果解析成字典形式数据，第一列是key，第二列是value
+#param: 输入第一个是命令行结果，第二个是要存储的dic的名称
+#return: None
+#=====================================
+function result2Dic(){
+    array=($1)
+    for i in ${!array[@]};do
+      if [ $[i % 2] == 0 ];then
+        continue
+      fi
+      val=${array[i]}
+      j=$[i-1]
+      key="${array[j]}"
+      hput $2 $key $val
+	  done
+	  unset array i j val key
+}
+
+
+#=====================================
 #fuc name: getFnumsAndConfigs
-#descr: 获取输入目录下的全部的configs和文件的数量,命令行里的cut 参数是15是因为日志格式的
-#      标准格式是awstats-XX-XXXX-.(中间横杆分割线是为了分割，分别是常数，月份，年份，点)
+#descr: 获取输入目录下的全部的configs和每类文件的数量,命令行里的cut 参数是15是因为日志解析结果的
+#      标准格式是"awstats-XX-XXXX-." (中间横杆分割线是为了分割，分别是常数，月份，年份，点)
 #param: 输入第一个是目标目录的地址，第二是文件的后缀名，第三个是数据存储的变量名
 #return: None
 #=====================================
 function getFnumsAndConfigs(){
-	##返回的数据是两两一组的 前面是数量，后面是config
-	info=($(ls $1 | cut -c 15- |sort -n |uniq -ci | sed "s/.$2//"))
-	for lindex in ${!info[@]};do
-		if [ $[lindex % 2] != 0 ];then
-			continue
-		fi
-		ftempNum=${info[$lindex]}
-		nextIndex=$[lindex+1]
-		ftempConfig="${info[$nextIndex]}"
-		hput $3 $ftempConfig $ftempNum
-	done
-	#进行资源释放
-	unset info lindex ftempNum nextIndex ftempCinfig
+	##返回的数据是两两一组的 前面是数量，后面是config ,最后的awk是将两列互换
+	info=($(ls $1 | cut -c 15- |sort -n |uniq -ci | sed "s/.$2//" | awk '{print $2,$1}'))
+	##将结果转换为dic
+	result2Dic ${info[@]} $3
+	##进行资源释放
+	unset info
 }
 
 #=====================================
@@ -131,23 +163,23 @@ function getConfigsLogInfo(){
 	   logConfig=${fname#*.}
 	   res=`hget logsDateDic "$logConfig"`
 	   if [ -z "${res[*]}" ];then
-		resTemp=("$logDate")
-		echo "不包含key：$logConfig 返回空，初始时间是：$logDate"
+		    resTemp=("$logDate")
+		    echo "不包含key：$logConfig 返回空，初始时间是：$logDate"
 	   else
-		resTemp=("${res[@]}" "$logDate")
-#		echo "包含$logConfig,日期为：$logDate 不返回空！"${resTemp[@]}
+		    resTemp=("${res[@]}" "$logDate")
+#		    echo "包含$logConfig,日期为：$logDate 不返回空！"${resTemp[@]}
 	   fi
 	   logsDateDic[$logConfig]="${resTemp[*]}"
-    done
-    ##对结果数组进行排序
-    for ckey in ${!logsDateDic[@]};do
-        dateArr=(${logsDateDic[$ckey]})
-        sortedArr=`sortArr "${dateArr[*]}" -r`
-        logsDateDic[$ckey]="${sortedArr[*]}"
-    done
-    #进行资源释放
-    unset ckey sortedArr
-    unset info fname logMonth logYear logDate logConfig resTemp res
+  done
+  ##对结果数组进行排序
+  for ckey in ${!logsDateDic[@]};do
+       dateArr=(${logsDateDic[$ckey]})
+       sortedArr=`sortArr "${dateArr[*]}" -r`
+       logsDateDic[$ckey]="${sortedArr[*]}"
+  done
+  #进行资源释放
+  unset ckey sortedArr dateArr
+  unset info fname logMonth logYear logDate logConfig resTemp res
 }
 
 #=====================================
@@ -158,48 +190,18 @@ function getConfigsLogInfo(){
 #=====================================
 function fileStorageInfo(){
     confKeys=(${!logsNumDic[@]})
-    CURRENTDATE=$(date +%Y-%m-%d)
-    UPDATETIME=$(date "+%Y-%m-%d-%H-%M-%S")
-    ##文件名
-    CONFILE="./conf/logs-configs.txt"
-    DATEFILE="./conf/logs-dates.txt"
-
-    ##文件描述
-    CONFIGFILEDESCR="# 分别记录config名称，createDate表示创建日期，lastUpdateTime最后更新时间，lastLogTime 表示最后的日志日期 ，fnum表示文件数量，version更新的次数version"
-    LOGDATEDESCR="# 记录config名称和日志的日期XXXX-XX，年份+月份"
-
+    
     ##获取config 与version信息
-    versions=($(cat ./conf/logs-configs.txt| grep -v '#' | awk -F ' ' '{print $1,$NF}'))
-    #组成version字典
-
-    for vindex in ${!versions[@]};do
-		if [ $[vindex % 2] == 0 ];then
-			continue
-		fi
-		vsion=${versions[$vindex]}
-		formerIndex=$[vindex-1]
-		vconfig="${versions[formerIndex]}"
-		hput versionsDic $vconfig $vsion
-    done
+    versions=($(cat $CONFILE | grep -v '#' | awk -F ' ' '{print $1,$NF}'))
+    ##组成version字典
+    result2Dic ${versions} versionsDic
 
     ##获取config 与createDate信息
-    createDates=($(cat ./conf/logs-configs.txt| grep -v '#' | awk -F ' ' '{print $1,$2}'))
-    #组成createDates字典
-
-    for cindex in ${!createDates[@]};do
-		if [ $[cindex % 2] == 0 ];then
-			continue
-		fi
-		cdate=${createDates[$cindex]}
-		if [ -z "$cdate" ];then
-		   cdate=$CURRENTDATE
-		fi
-		cformerIndex=$[cindex-1]
-		cconfig="${createDates[cformerIndex]}"
-		hput createDatesDic $cconfig $cdate
-    done
-
-    ##输入描述
+    createDates=($(cat $CONFILE | grep -v '#' | awk -F ' ' '{print $1,$2}'))
+    ##组成createDates字典
+    result2Dic ${createDates} createDatesDic
+   
+    ##往文件里输入描述
     echo $CONFIGFILEDESCR >  $CONFILE
     echo $LOGDATEDESCR >  $DATEFILE
 
@@ -210,16 +212,19 @@ function fileStorageInfo(){
        logsDates=(${logsDateDic[$ckey]})
        ccdate=${createDatesDic[$ckey]}
        if [ -z "$ccdate" ];then
-		ccdate=$CURRENTDATE
+		      ccdate=$CURRENTDATE
        fi
+       ##
+       ## 记录信息为config createDate lastUpdateTime lastLogDate fnum version
        sinfo=$ckey" "$ccdate" "$UPDATETIME" "${logsDates[0]}" "${logsNumDic[$ckey]}" "$rversion
+       ## 记录的信息为config:[dates](后面表示的是日志的解析结果时间)
        linfo=$ckey":""${logsDates[@]}"
        echo "$sinfo" >> $CONFILE
        echo "$linfo" >> $DATEFILE
        statisticArr[$cindex]=$sinfo
        datesArr[$cindex]=$linfo
     done
-    unset confKeys CURRENTDATE UPDATETIME CONFILE DATEFILE ckey logDates
+    unset confKeys versions createDates cindex ckey logDates rversion ccdate  sinfo linfo
     unset sinfo linfo vindex versions vsion formerIndex vconfig
 }
 
@@ -232,6 +237,13 @@ function initLogConfigs(){
 	echo "init log configs!"
 }
 
+
+#=====================================
+#fuc name: handleLastDatelog
+#descr: 将最后处理的config的日期记录数据读出来写入dic
+#param: None
+#return: None
+#=====================================
 function handleLastDatelog(){
 	##读取最后日志解析的时间
 	pinfo=($(cat $1 | grep -v '#' | awk -F ' ' '{print $1,$2}'))
@@ -247,15 +259,7 @@ function handleLastDatelog(){
 		done
 	else
 		echo "存在配置文件！"
-		for pindex in ${!pinfo[@]};do
-			if [ $[pindex % 2] == 0 ];then
-				continue
-			fi
-			pdate=${pinfo[$pindex]}
-			formerIndex=$[pindex-1]
-			pconfig="${pinfo[formerIndex]}"
-			hput parseInfo $pconfig $pdate
-		done
+		result2Dic ${pinfo[@]} parseInfo
 	fi
 }
 
@@ -274,13 +278,10 @@ getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 fileStorageInfo
 
 
-#获取
-LASTLOGFILE="./conf/last-date.log"
-
 #获取config信息以及最后解析的日志时间
 handleLastDatelog $LASTLOGFILE
 
-echo "#最后解析记录日期文件信息" > $LASTLOGFILE
+echo $LASTLOGDESCR > $LASTLOGFILE
 
 confs=(${!logsDateDic[@]})
 for mconf in ${confs[@]};do
@@ -300,6 +301,7 @@ for mconf in ${confs[@]};do
 		year=${logDate:0:4}
 		month=${logDate:4:2}
 		echo $mconf">>"$month">>"$year
+		##正式执行结果入库程序
 		#result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))
 		#echo $result
 		#if [  "$result" = "0" ];then
