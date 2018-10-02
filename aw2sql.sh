@@ -142,7 +142,7 @@ function getFnumsAndConfigs(){
 	##返回的数据是两两一组的 前面是数量，后面是config ,最后的awk是将两列互换
 	info=($(ls $1 | cut -c 15- |sort -n |uniq -ci | sed "s/.$2//" | awk '{print $2,$1}'))
 	##将结果转换为dic
-	result2Dic ${info[@]} $3
+	result2Dic "${info[*]}" $3
 	##进行资源释放
 	unset info
 }
@@ -178,8 +178,8 @@ function getConfigsLogInfo(){
        logsDateDic[$ckey]="${sortedArr[*]}"
   done
   #进行资源释放
-  unset ckey sortedArr dateArr
   unset info fname logMonth logYear logDate logConfig resTemp res
+  unset ckey sortedArr dateArr
 }
 
 #=====================================
@@ -190,17 +190,16 @@ function getConfigsLogInfo(){
 #=====================================
 function fileStorageInfo(){
     confKeys=(${!logsNumDic[@]})
-    
     ##获取config 与version信息
     versions=($(cat $CONFILE | grep -v '#' | awk -F ' ' '{print $1,$NF}'))
     ##组成version字典
-    result2Dic ${versions} versionsDic
+    result2Dic "${versions[*]}" versionsDic
 
     ##获取config 与createDate信息
     createDates=($(cat $CONFILE | grep -v '#' | awk -F ' ' '{print $1,$2}'))
     ##组成createDates字典
-    result2Dic ${createDates} createDatesDic
-   
+    result2Dic "${createDates[*]}" createDatesDic
+
     ##往文件里输入描述
     echo $CONFIGFILEDESCR >  $CONFILE
     echo $LOGDATEDESCR >  $DATEFILE
@@ -224,8 +223,7 @@ function fileStorageInfo(){
        statisticArr[$cindex]=$sinfo
        datesArr[$cindex]=$linfo
     done
-    unset confKeys versions createDates cindex ckey logDates rversion ccdate  sinfo linfo
-    unset sinfo linfo vindex versions vsion formerIndex vconfig
+    unset confKeys versions createDates cindex ckey logDates ccdate rversion ccdate  sinfo linfo
 }
 
 function mergeInfo(){
@@ -247,20 +245,20 @@ function initLogConfigs(){
 function handleLastDatelog(){
 	##读取最后日志解析的时间
 	pinfo=($(cat $1 | grep -v '#' | awk -F ' ' '{print $1,$2}'))
-	echo ${pinfo[@]}
 	#不存在，也就是初始化的时候,从最后一个日志生成
 	if [ -z "${pinfo[*]}" ];then
 		echo "不存在最后日期配置文件"
 		confs=${!logsNumDic[@]}
 		for conf in ${confs[@]};do
 		    logDateArr=(${logsDateDic[$conf]})
-		    LEN=${#logDateArr[@]}
-		    parseInfo[$conf]=${logDateArr[$[LEN-1]]}
+		    len=${#logDateArr[@]}
+		    parseInfo[$conf]=${logDateArr[$[len-1]]}
 		done
 	else
 		echo "存在配置文件！"
-		result2Dic ${pinfo[@]} parseInfo
+		result2Dic "${pinfo[*]}" parseInfo
 	fi
+	unset pinfo confs conf len logDateArr
 }
 
 
@@ -278,7 +276,7 @@ getConfigsLogInfo  $DataDir $logSuffix logsDateDic
 fileStorageInfo
 
 
-#获取config信息以及最后解析的日志时间
+#获取config最后解析入库的日志时间
 handleLastDatelog $LASTLOGFILE
 
 echo $LASTLOGDESCR > $LASTLOGFILE
