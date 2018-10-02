@@ -97,6 +97,12 @@ Basic Usage
       （#result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))），最后加上定时执行任务的话
       那么就不用管日志解析结果了，只需要让别人上传日志解析结果文件到执行目录即可，如果需要查看统计信息，
       去读取conf下面的几个文件即可
+
+* Use aw2sql-1db.pl
+
+    使用这个脚本可以使得日志解析结果都存储到一个数据库里面去，每个表里面都有config来说明这行记录属于哪个config
+    它的使用方法和aw2sql.pl是一样的，如果要几个bash 脚本运行目标目录下的全部解析结果，只需要将脚本名称修改一下即可，
+    其他的不用多变化。
      
 数据表与网页上数据对照说明
 ------------------------
@@ -127,6 +133,7 @@ Changelog
 2018-10-02 zzq <191550636@qq.com>
 
    * 增加自动处理DataDir下全部日志解析结果的脚本文件；
+   * 增加将全部数据都存储到同一个数据库的脚本文件；
 
 2018-09-29 zzq <191550636@qq.com>
 
@@ -221,6 +228,7 @@ And of course, she is the artist who have created the website for this project ;
     表中字段的处理：长度限制以及对url，agent插入的时候进行预编译后执行插入的方式；
    * 增加downloads,errors403,errors400表；
    * 增加自动处理DataDir下全部日志解析结果的脚本文件；
+   * 增加将全部的数据都存储到同一个数据库的脚本文件；
 
 
 
