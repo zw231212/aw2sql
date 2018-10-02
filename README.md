@@ -84,8 +84,15 @@ Basic Usage
 
 * Use aw2sql.sh
         
-      使用脚本自动处理目录下config
-  
+      使用脚本自动处理结果目录下的全部的解析文件，
+      直接运行脚本文件。
+      
+      ./aw2sql.sh
+      
+      最后会在conf目录下生成三个文件，分别是：
+          *  logs-dates.txt ：存储全部的config和其每个config生成的日期的信息；
+          *  logs-configs.txt ：存储config解析相关的一些信息
+          *  logs-last-date.txt ：存储最后解析入库的日志解析结果的文件的日期
      
 数据表与网页上数据对照说明
 ------------------------
@@ -113,6 +120,10 @@ Basic Usage
      
 Changelog
 -----------
+2018-10-02 zzq <191550636@qq.com>
+
+   * 增加自动处理DataDir下全部日志解析结果的脚本文件；
+
 2018-09-29 zzq <191550636@qq.com>
 
    * 修改表结构，在一些清空表格的操作上，修改为删除当前year和month相同的数据，同时对于大部分的表增加一列year_month，同时修改一些表的key；
@@ -205,7 +216,7 @@ And of course, she is the artist who have created the website for this project ;
    * 增加从conf/aw2sql.conf来读取数据库的配置文件的操作；增加对pages，unkos，unkbrowser这三
     表中字段的处理：长度限制以及对url，agent插入的时候进行预编译后执行插入的方式；
    * 增加downloads,errors403,errors400表；
-   * 增加脚本读取配置文件（配置文件修改了形式），然后处理DataDir目录维护config信息；
+   * 增加自动处理DataDir下全部日志解析结果的脚本文件；
 
 
 
