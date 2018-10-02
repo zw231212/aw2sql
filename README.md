@@ -84,8 +84,7 @@ Basic Usage
 
 * Use aw2sql.sh
         
-      使用脚本自动处理结果目录下的全部的解析文件，
-      直接运行脚本文件。
+      使用脚本自动处理结果目录下的全部的解析文件，直接运行脚本文件aw2sql.sh(必须可执行)。
       
       ./aw2sql.sh
       
@@ -93,6 +92,11 @@ Basic Usage
           *  logs-dates.txt ：存储全部的config和其每个config生成的日期的信息；
           *  logs-configs.txt ：存储config解析相关的一些信息
           *  logs-last-date.txt ：存储最后解析入库的日志解析结果的文件的日期
+          
+      每次自动运行这个文件即可对目标目录下的全部config进行执行，现在对应的执行命令那行是注释掉的
+      （#result=($(./aw2sql.pl -config=$mconf -year=$year -month=$month))），最后加上定时执行任务的话
+      那么就不用管日志解析结果了，只需要让别人上传日志解析结果文件到执行目录即可，如果需要查看统计信息，
+      去读取conf下面的几个文件即可
      
 数据表与网页上数据对照说明
 ------------------------
