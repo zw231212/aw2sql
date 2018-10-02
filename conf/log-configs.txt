@@ -1,3 +1,4 @@
-# 存储bash脚本扫描出来的目标目录文件夹下的全部文件的config
-# config createDate lastUpdateTime lastLogDate fnum version ，
 # 分别记录config名称，createDate表示创建日期，lastUpdateTime最后更新时间，lastLogTime 表示最后的日志日期 ，fnum表示文件数量，version更新的次数version
+2005DKA10100 2018-10-01 2018-10-02-00-12-14 201712 24 99
+share.com 2018-10-01 2018-10-02-00-12-14 201712 12 99
+kejsoqixiang 2018-10-01 2018-10-02-00-12-14 201809 11 99
