@@ -5,7 +5,7 @@ aw2sql
 然后学习了一下perl，进行了一些初步的改动。
 
 对于使用本项目生成多数据库的数据（每次新的config都生成新的数据库），可以结合另外一个系统[log-analytics](https://github.com/zw231212/log-analytics)
-来进行数据的维护，log-analytics提供根据每个从config来作为id查询数据库的数据。
+来进行数据的维护，log-analytics提供了根据每个config来作为id进行查询的自身数据的一个服务，数据库的数据以restful API进行服务。
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
@@ -27,7 +27,7 @@ Basic Usage
 
 *  Use aw2sql.pl: 
 
-    (do the dependency、2nd and then jump to the 6th!)
+    (do the dependency、2nd、3rd and then jump to the 6th!)
     
     dependencies:
     
@@ -40,7 +40,7 @@ Basic Usage
      
     1st: Copy aw2sql.pl script to the awstats directory （not necessary）
     
-    2nd: Edit aw2sql.pl and change the values of:(changed) 
+    2nd: Edit aw2sql.pl and change the values of: (changed) 
     
           $DataDir   => Directory where you store the awstats temp files
           $dbuser    => You must select a username
@@ -53,7 +53,7 @@ Basic Usage
             $dbpass  = 'secret'
             $dbhost  = 'localhost'
 
-        also: you could config these param in file:conf/aw2sql.conf;
+        also: you should config these params in file:conf/aw2sql.conf;
         
     3rd: # chown root:root aw2sql.pl
 

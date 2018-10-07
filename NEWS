@@ -1,4 +1,4 @@
-Current Version: 0.0.3
+Current Version: 0.1.0
 aw2sql-.0.1.0 (2018 10 2)
 * 增加自动处理DataDir下全部日志解析结果的脚本文件;
 * 增加全部数据都存储到同一个数据库里面的脚本aw2sql-1db.pl
