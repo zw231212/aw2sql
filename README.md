@@ -4,13 +4,15 @@ aw2sql
 故而找了这方面的一些资料，最终找到这个项目——能把结果数据解析到mysql数据库中去。但是运行的时候出现了一些问题；
 然后学习了一下perl，进行了一些初步的改动。
 
+config：awstats解析日志的时候所使用的网站的日志的一个标识符；
+
 对于使用本项目生成多数据库的数据（每次新的config都生成新的数据库），可以结合另外一个系统[log-analytics](https://github.com/zw231212/log-analytics)
-来进行数据的维护，log-analytics提供了根据每个config来作为id进行查询的自身数据的一个服务，数据库的数据以restful API进行服务。
+来进行数据的维护，log-analytics提供了根据每个config来作为id进行查询自身数据的一个服务，数据库的数据以restful API进行服务。
 
 项目的最初搭建教程是参考：https://blog.csdn.net/jiedushi/article/details/6414726
 如果此项目和任何LICENSE有冲突，或者原作者有意见，都可直接issue@me!
 
-source code from :[sourceforge](http://sourceforge.net/projects/aw2sql/); [homepage](http://aw2sql.sourceforge.net/)
+source code from: [sourceforge](http://sourceforge.net/projects/aw2sql/); [homepage](http://aw2sql.sourceforge.net/)
 
 Aw2Sql is a Perl CLI script which analyze the results of Awstats and store them
 into a MySQL database. After this you can query this results from your own site
