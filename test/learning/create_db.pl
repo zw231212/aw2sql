@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+use warnings;
+use strict;
 use DBI;
 my $db_name = "test12";
 my $db_host = "XXXXXXX";
