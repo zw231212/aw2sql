@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 
 ###################################
-### author: www.ttlsa.com 		###
-### QQ群: 39514058 				###
+### 有问题
+### author: www.ttlsa.com 	###
 ### E-mail: service@ttlsa.com 	###
 ###################################
 use strict;
