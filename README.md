@@ -110,32 +110,6 @@ Basic Usage
     它的使用方法和aw2sql.pl是一样的，如果要aw2sql.sh 这个bash 脚本运行目标目录下的全部解析结果并且将结果全部存储到同一个数据库，
     只需要将脚本名称修改一下即可，其他的不用多变化。
      
-数据表与网页上数据对照说明
-------------------------
-基本字段说明：
-  pages ：网页数；
-  hits ：文件数；
-  bandwidth ：字节数；
-  year_month: 年份和月份；
-  config:解析结果的config；（在数据都存储到同一个数据库的时候有用！）
- 
-  * 摘要数据、按月历史统计数据和主机（相关的数据统计数据）对应表：general ；
-  * 按日期统计数据对应表：daily
-  * 按星期来统计数据对应表：
-  * 每小时浏览次数：hours
-  * 参观者的网域或国家：domain
-  * 主机和最近参观日期、无法反解译的IP地址的数据对应表：visitors
-  * 搜索引擎网站的机器人对应表：robot；
-  * 每次参观所花时间：session ；
-  * 文件类别：filetypes
-  * url网址，也就是浏览的网页，还有入站处（entry不能为0），出站处（exit不为0）的数据对应表：pages
-  * 操作系统、无法得知的操作系统数据对于表：os与unkos
-  * 浏览器与无法得知的浏览器对应表数据：browser与unkbrowser
-  * 链接网站的方法：origin
-  * 用以搜索的短语和用以搜索的关键词：searchwords 和searchkeywords
-  * HTTP错误码：errors对应总表，errors404,errors400,errors403对应各自错误的页面
-  * 下载文档数据对应表：downloads；
-     
 Changelog
 -----------
 2018-10-02 zzq <191550636@qq.com>
@@ -238,6 +212,31 @@ And of course, she is the artist who have created the website for this project ;
    * 增加自动处理DataDir下全部日志解析结果的脚本文件；
    * 增加将全部的数据都存储到同一个数据库的脚本文件；
 
-
+数据表与网页上数据对照说明
+------------------------
+基本字段说明：
+  pages ：网页数；
+  hits ：文件数；
+  bandwidth ：字节数；
+  year_month: 年份和月份；
+  config:解析结果的config；（在数据都存储到同一个数据库的时候有用！）
+ 
+  * 摘要数据、按月历史统计数据和主机（相关的数据统计数据）对应表：general ；
+  * 按日期统计数据对应表：daily
+  * 按星期来统计数据对应表：
+  * 每小时浏览次数：hours
+  * 参观者的网域或国家：domain
+  * 主机和最近参观日期、无法反解译的IP地址的数据对应表：visitors
+  * 搜索引擎网站的机器人对应表：robot；
+  * 每次参观所花时间：session ；
+  * 文件类别：filetypes
+  * url网址，也就是浏览的网页，还有入站处（entry不能为0），出站处（exit不为0）的数据对应表：pages
+  * 操作系统、无法得知的操作系统数据对于表：os与unkos
+  * 浏览器与无法得知的浏览器对应表数据：browser与unkbrowser
+  * 链接网站的方法：origin
+  * 用以搜索的短语和用以搜索的关键词：searchwords 和searchkeywords
+  * HTTP错误码：errors对应总表，errors404,errors400,errors403对应各自错误的页面
+  * 下载文档数据对应表：downloads；
+     
 
 
